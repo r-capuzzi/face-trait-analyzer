@@ -1,0 +1,21 @@
+# dependencies
+/node_modules
+
+# testing
+/coverage
+
+# production
+/dist
+
+# local test photos - faces never go into git
+/test-photos
+
+# local Claude Code settings (machine-specific paths)
+.claude/
+
+# misc
+.DS_Store
+.env.local
+.env.*.local
+
+npm-debug.log*
