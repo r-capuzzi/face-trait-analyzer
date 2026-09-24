@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { CSP } from "./csp.js";
 
 // MediaPipe's JS API and its WebAssembly runtime must be the exact same
 // version, or the task graph fails to load with an opaque error. Read the
@@ -19,7 +20,12 @@ export default defineConfig({
     __MEDIAPIPE_VERSION__: JSON.stringify(mediapipeVersion),
   },
   server: {
-    port: 5173,
+    port: 5173, // no CSP in dev: Vite's hot reload needs inline scripts and a websocket
+  },
+  preview: {
+    port: 4173,
+    // same policy as production (vercel.json), so `npm run preview` proves it works
+    headers: { "Content-Security-Policy": CSP },
   },
   test: {
     globals: true, // `describe`/`test`/`expect`/`vi` without importing them
