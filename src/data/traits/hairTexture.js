@@ -1,6 +1,7 @@
 // Hair texture (self-reported: photos can't reliably measure curl - styling,
 // length and lighting all change how hair looks). Claims checked against
 // source abstracts / full text via Europe PMC (2026-09-23).
+import { evolutionSources } from "../evolution";
 
 const POLYGENIC = {
   text: "Hair shape is polygenic, so no genotype can be read from it. The best-known variant, near TCHH, explained only about 6% of the variation in the study that found it; other variants near WNT10A, OFCC1 and PRSS53 add their own small effects.",
@@ -12,6 +13,24 @@ const hairTexture = {
   title: "Hair texture",
   selfReport:
     "A photo can't reliably measure curl (styling, length and lighting all change how hair looks), so tell us yours.",
+
+  history: [
+    {
+      evidence: "hypothesis",
+      text: "Scalp hair may be a sunshade. Humans are unusual among mammals in having a nearly naked body but a hairy scalp. In tests with a heated manikin wearing wigs under simulated sunlight, hair cut the sun's heat reaching the scalp, and tightly curled hair did so best, suggesting it could have helped our ancestors stay cool under strong sun.",
+      cite: ["lasisi2023"],
+    },
+    {
+      evidence: "strong",
+      text: "Thick hair got a boost from natural selection: the EDAR 370A variant, one of the strongest signals of recent selection in the human genome, arose about 30,000 years ago, probably in central China. Mice carrying it grow thicker hair.",
+      cite: ["kamberov2013"],
+    },
+    {
+      evidence: "hypothesis",
+      text: "Why EDAR 370A was favored is debated, because the gene does many things. Candidates include more active sweat glands and, in one hypothesis, more branched milk ducts that helped mothers pass vitamin D to their babies in the low-sunlight Arctic during the last Ice Age, about 20,000 years ago.",
+      cite: ["kamberov2013", "hlusko2018"],
+    },
+  ],
 
   mechanism: [
     {
@@ -77,6 +96,7 @@ const hairTexture = {
   ],
 
   sources: {
+    ...evolutionSources("lasisi2023", "kamberov2013", "hlusko2018"),
     medland2009: {
       citation:
         "Medland SE et al. (2009). Common variants in the trichohyalin gene are associated with straight hair in Europeans. Am J Hum Genet 85:750–755.",

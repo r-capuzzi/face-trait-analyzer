@@ -1,10 +1,34 @@
 // Eye color genetics content. Every claim cites a source in `sources`, and
 // every number was checked against that paper's abstract (2026-09-23).
 // Keep wording hedged where the science is: this is education, not a test.
+import { evolutionSources } from "../evolution";
 
 const eyeColor = {
   id: "eye",
   title: "Eye color",
+
+  history: [
+    {
+      evidence: "strong",
+      text: "Brown is the original human eye color. The \"brown\" version of the key HERC2 switch is shared with many other species, and every blue-eyed person tested (155 in Denmark and a few in Turkey and Jordan) carried the same stretch of DNA around the \"blue\" version, pointing to one ancestral mutation.",
+      cite: ["eiberg2008"],
+    },
+    {
+      evidence: "strong",
+      text: "The blue-eye variant is old in Europe: all the hunter-gatherers sampled from before farming arrived already carried it, and today it grows more common the further north you go.",
+      cite: ["mathieson2015"],
+    },
+    {
+      evidence: "strong",
+      text: "It spread by natural selection, not by chance alone: ancient DNA shows strong selection favoring lighter eye, hair and skin pigmentation in Europe over the last 5,000 years.",
+      cite: ["wilde2014"],
+    },
+    {
+      evidence: "unknown",
+      text: "Why lighter eyes were favored is unresolved. The rise in frequency toward the north hints at a link with the environment, but the actual advantage hasn't been identified.",
+      cite: ["mathieson2015"],
+    },
+  ],
 
   mechanism: [
     {
@@ -95,6 +119,7 @@ const eyeColor = {
     "Your two eyes measured quite differently. That can be real heterochromia or just uneven lighting, such as one side of your face nearer a window. Retake the photo facing the light to check. If one eye's color has changed recently, mention it to an eye doctor.",
 
   sources: {
+    ...evolutionSources("mathieson2015", "wilde2014"),
     eiberg2008: {
       citation:
         "Eiberg H et al. (2008). Blue eye color in humans may be caused by a perfectly associated founder mutation in a regulatory element located within the HERC2 gene inhibiting OCA2 expression. Hum Genet 123:177–187.",

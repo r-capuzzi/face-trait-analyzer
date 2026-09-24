@@ -1,6 +1,6 @@
 # Trait Genetics Explainer
 
-Upload a photo and get your **eye, hair and skin color** measured, then read how the genes behind each trait work, how well science understands them, and what a photo can and can't tell you.
+Upload a photo and get your **eye, hair and skin color** and face shape measured, then read how the genes behind each trait work, why the trait evolved, how well science understands both, and what a photo can and can't tell you.
 
 **Try it: [face-trait-analyzer.vercel.app](https://face-trait-analyzer.vercel.app)**
 
@@ -66,6 +66,18 @@ Some traits don't show up reliably in a photo, so these cards ask you to pick yo
 Three of these (earlobes, dimples, widow's peak) are classic "one gene, dominant or recessive" classroom examples. Each card explains what the studies actually found.
 
 A test ([`content.test.js`](src/data/content.test.js)) checks every card's citations: nothing cites a source that isn't listed, nothing lists a source it never cites, and every source has a link. Its first run found an eye-color source that was listed but never shown.
+
+### Why it evolved
+
+Every card has a "Why it evolved" section: how the trait came to vary among humans, with each point labeled by the strength of its evidence (**well supported**, **leading explanation**, **hypothesis** or **unknown**). Evolutionary explanations range from measured to guesswork, and the labels keep that visible:
+
+- **Skin color** is the best-supported case. It tracks UV levels worldwide (Jablonski & Chaplin 2000, 2010): dark skin protects folate, lighter skin lets the body make vitamin D where UV is weak, and light skin evolved more than once through different genes (Norton 2007). Ancient DNA shows the main European light-skin variant arrived mostly with farmers from Anatolia (Mathieson 2015).
+- **Blond hair** evolved twice, via KITLG in northern Europe and TYRP1 in the Solomon Islands (Guenther 2014; Kenny 2012). **Red hair** fits relaxed selection on MC1R outside Africa, not an advantage (Harding 2000).
+- **Established but unexplained:** strong selection for lighter eyes and hair in Europe over the last 5,000 years (Wilde 2014), and the EDAR 370A variant behind thicker hair (Kamberov 2013). Why they were favored is still debated.
+- **Contested ideas are labeled as such.** Examples: the "cooperative eye" explanation for the white of the eye (Kobayashi 2001, disputed by Perea-García 2025), beards as a signal between men (Dixson & Vasey 2012), and mobile eyebrows replacing brow ridges (Godinho 2018).
+- **Some traits have no known purpose.** Earlobes, cheek dimples and the widow's peak are labeled "unknown" rather than given a made-up story. Most face and skull variation between populations fits random drift (Roseman 2004).
+
+The section frames it as the history of our species, never as a reading of the viewer's own ancestry. A test requires every card to have one, with a valid evidence label on every point.
 
 ### Color correction
 

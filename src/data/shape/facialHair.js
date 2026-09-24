@@ -42,6 +42,19 @@ const facialHair = {
     },
   ],
 
+  history: [
+    {
+      evidence: "hypothesis",
+      text: "Darwin thought beards evolved because women found them attractive. When tested in two cultures (New Zealand and Samoa), women didn't rate bearded faces as more attractive, but beards made men look older and higher-status, and angry bearded faces looked more aggressive. That fits beards evolving mainly through competition between men.",
+      cite: ["dixson2012"],
+    },
+    {
+      evidence: "hypothesis",
+      text: "The gene most strongly linked to beard thickness, EDAR, is also one whose 370A variant spread through strong natural selection, probably for its effects on other organs rather than on beards.",
+      cite: ["adhikari2016hair", "kamberov2013"],
+    },
+  ],
+
   mechanism: [
     {
       text: "The first genes linked to beard thickness came from a study that scored it (low, medium or high) from photos of about 2,900 men, rating shaved and unshaved men separately. The strongest link was EDAR, followed by LNX1, PREP and FOXP2.",

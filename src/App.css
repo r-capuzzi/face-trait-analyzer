@@ -840,6 +840,48 @@
   text-transform: uppercase;
   color: var(--muted);
 }
+/* why it evolved: one point per item, each with an evidence label */
+.history__frame {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.history {
+  display: grid;
+  gap: 12px;
+  margin: 12px 0 4px;
+  padding: 0;
+  list-style: none;
+}
+.history p {
+  margin: 4px 0 0;
+}
+.evidence {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.evidence--strong {
+  background: var(--ok-bg);
+  color: var(--ok-text);
+}
+.evidence--leading {
+  background: var(--info-bg);
+  color: var(--info-text);
+}
+.evidence--hypothesis {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+}
+.evidence--unknown {
+  background: var(--surface-2);
+  color: var(--muted);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
 .genes {
   display: grid;
   gap: 10px;

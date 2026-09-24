@@ -40,6 +40,24 @@ const eyebrows = {
     },
   ],
 
+  history: [
+    {
+      evidence: "hypothesis",
+      text: "Mobile eyebrows came with a new forehead. Our Middle Pleistocene ancestors had large brow ridges; a virtual-anatomy study found them bigger than needed for the eye sockets or for biting, and proposed that replacing them with a vertical forehead let eyebrows move freely and signal subtle, friendly emotions.",
+      cite: ["godinho2018"],
+    },
+    {
+      evidence: "leading",
+      text: "Eyebrows matter for recognizing people: in one experiment, removing the eyebrows from familiar faces hurt recognition more than removing the eyes.",
+      cite: ["sadr2003"],
+    },
+    {
+      evidence: "unknown",
+      text: "Differences in brow thickness, and the unibrow, have no known evolutionary explanation.",
+      cite: [],
+    },
+  ],
+
   mechanism: [
     {
       text: "The first genes linked to these traits came from a study that scored eyebrow thickness (low, medium or high) and unibrow (none, medium or high) from photos of about 2,900 men. Women weren't scored because most had shaped their eyebrows.",

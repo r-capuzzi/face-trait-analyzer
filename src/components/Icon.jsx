@@ -86,6 +86,15 @@ const PATHS = {
       <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none" />
     </>
   ),
+  tree: (
+    <>
+      {/* a branching family tree */}
+      <path d="M12 21v-8M12 13 6.5 7.5M12 13l5.5-5.5M12 13V5.5" />
+      <circle cx="6" cy="6" r="2" />
+      <circle cx="18" cy="6" r="2" />
+      <circle cx="12" cy="4" r="1.6" />
+    </>
+  ),
   shield: (
     <>
       <path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6Z" />

@@ -29,6 +29,8 @@
   --error-text: #8a1c1c;
   --ok-bg: #e1f0ea;
   --ok-text: #17574d;
+  --info-bg: #e3edf6;
+  --info-text: #1f4f75;
 
   --radius: 18px;
   --radius-sm: 10px;
@@ -72,6 +74,8 @@
     --error-text: #f6b3ae;
     --ok-bg: #16302a;
     --ok-text: #8fe0cd;
+    --info-bg: #182a3a;
+    --info-text: #a7cdf0;
 
     --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 32px -16px rgb(0 0 0 / 70%);
     --shadow-lift: 0 2px 4px rgb(0 0 0 / 45%), 0 20px 44px -18px rgb(0 0 0 / 80%);

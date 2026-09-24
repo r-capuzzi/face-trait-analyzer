@@ -38,6 +38,19 @@ const lipShape = {
     },
   ],
 
+  history: [
+    {
+      evidence: "hypothesis",
+      text: "Human lips are built differently from other primates': in a study of 15 primate species, only humans had a hook-shaped lip muscle together with fat-rich, low-connective-tissue lips. The authors propose this gives the fine control that speech needs, while noting they have no direct functional evidence.",
+      cite: ["rotenstreich2025"],
+    },
+    {
+      evidence: "unknown",
+      text: "Why lip shape and fullness vary between people has no established evolutionary explanation.",
+      cite: [],
+    },
+  ],
+
   mechanism: [
     {
       text: "In a study of more than 6,000 people, one DNA region on chromosome 1 that affects lip thickness includes a stretch of DNA inherited from Denisovans, an archaic human group that interbred with modern humans.",

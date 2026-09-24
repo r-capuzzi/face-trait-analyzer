@@ -3,6 +3,7 @@ import { labToHex } from "../lib/color";
 import Cite, { citationOrder } from "./Cite";
 import CardHeader, { ConfidenceMeter, accentOf } from "./CardHeader";
 import CorrectionControl from "./CorrectionControl";
+import EvolutionDetails from "./EvolutionDetails";
 import GeneticsDetails from "./GeneticsDetails";
 
 // One color trait: what was measured, what the genetics says about that
@@ -76,6 +77,7 @@ export default function TraitCard({ content, measurement, override, onOverride, 
         </section>
       )}
 
+      <EvolutionDetails content={content} cite={cite} />
       <GeneticsDetails content={content} order={order} cite={cite} />
     </article>
   );

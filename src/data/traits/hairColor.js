@@ -1,9 +1,33 @@
 // Hair color genetics content. Claims and numbers checked against each
 // source's abstract or full text via Europe PMC (2026-09-23).
+import { evolutionSources } from "../evolution";
 
 const hairColor = {
   id: "hair",
   title: "Hair color",
+
+  history: [
+    {
+      evidence: "strong",
+      text: "Dark hair is the original state. In Africa, MC1R (the gene that switches pigment cells between black-brown and red-yellow melanin) is kept unchanged by strong selection: any shift away from black-brown pigment appears to have been harmful there.",
+      cite: ["harding2000"],
+    },
+    {
+      evidence: "leading",
+      text: "Red hair most likely spread without being an advantage. Outside Africa that constraint relaxed, and MC1R's many variants, the red-hair ones included, match what random drift alone would produce.",
+      cite: ["harding2000"],
+    },
+    {
+      evidence: "strong",
+      text: "Lighter hair was actively favored in Europe: ancient DNA shows strong selection on hair-pigmentation variants over the last 5,000 years, for reasons that aren't known.",
+      cite: ["wilde2014"],
+    },
+    {
+      evidence: "strong",
+      text: "Blond hair evolved at least twice, through different genes. In northern Europe a common variant weakens a KITLG switch that's active in hair follicles; in the Solomon Islands, blond hair comes from a change in TYRP1 that is found nowhere outside Oceania.",
+      cite: ["guenther2014", "kenny2012"],
+    },
+  ],
 
   mechanism: [
     {
@@ -113,6 +137,7 @@ const hairColor = {
   ],
 
   sources: {
+    ...evolutionSources("harding2000", "wilde2014", "kenny2012"),
     valverde1995: {
       citation:
         "Valverde P et al. (1995). Variants of the melanocyte-stimulating hormone receptor gene are associated with red hair and fair skin in humans. Nat Genet 11:328–330.",

@@ -3,6 +3,7 @@
 //
 // Deliberately no genotype hint per category: skin pigmentation is highly
 // polygenic, and the app never maps a skin tone to a population.
+import { evolutionSources } from "../evolution";
 
 const POLYGENIC_HINT = {
   text: "Skin color can't be traced back to a genotype. It is highly heritable but highly polygenic: roughly 15 genes had been directly linked to it, yet in some populations the known variants explain only a small fraction of the variation, and which genes matter differs from place to place.",
@@ -19,14 +20,48 @@ const skinTone = {
   id: "skin",
   title: "Skin tone",
 
+  history: [
+    {
+      evidence: "leading",
+      text: "Dark skin evolved early in our genus, as it lost most of its body hair; the earliest members of our lineage probably had light skin under dark hair, as chimpanzees do. The leading explanation is protection from ultraviolet (UV) light: melanin shields sweat glands and, above all, folate, a vitamin needed for healthy embryos and sperm that UV breaks down.",
+      cite: ["jablonski2000"],
+    },
+    {
+      evidence: "strong",
+      text: "Across the world, the skin color of indigenous peoples closely tracks UV levels, changing gradually with latitude rather than falling into distinct groups.",
+      cite: ["jablonski2000", "jablonski2010"],
+    },
+    {
+      evidence: "leading",
+      text: "As people moved away from the tropics, lighter skin evolved where UV is weak, most likely because skin needs UVB light to make vitamin D. The palest skin is found where yearly UVB is lowest, and the ability to tan mattered most in between, where UV swings strongly with the seasons.",
+      cite: ["jablonski2010"],
+    },
+    {
+      evidence: "strong",
+      text: "Light skin evolved more than once, through different genes: SLC24A5 and SLC45A2 mattered for light skin in Europe but not in East Asia.",
+      cite: ["norton2007", "jablonski2010"],
+    },
+    {
+      evidence: "strong",
+      text: "In Europe it happened recently. Ancient DNA shows the main light-skin variant of SLC24A5 arrived mostly with the first farmers migrating from Anatolia, while a light-skin variant of SLC45A2, far rarer in ancient Europeans than today, rose under natural selection. Selection favoring lighter skin, hair and eyes was still strong in the last 5,000 years.",
+      cite: ["mathieson2015", "wilde2014"],
+    },
+    {
+      evidence: "strong",
+      text: "Dark skin outside Africa is largely the original kind: the dark-pigmentation variants found in South Asian and Australo-Melanesian populations are the same ones found in Africa, inherited from shared ancestors.",
+      cite: ["crawford2017"],
+    },
+    {
+      evidence: "strong",
+      text: "Because skin color re-adapted to local sunlight again and again, it says little about how groups of people are related to each other.",
+      cite: ["jablonski2000"],
+    },
+  ],
+
   mechanism: [
     {
       text: "Skin color mostly reflects how much melanin the skin's pigment cells make and how it is packaged. Lighter skin has fewer, smaller and less dense melanin-filled compartments (melanosomes).",
       cite: ["lamason2005"],
-    },
-    {
-      text: "Why skin color varies: it tracks ultraviolet (UV) levels. Darker skin protects against UV damage and lighter skin makes vitamin D more easily where UV is weak. Skin color is a compromise between those two needs.",
-      cite: ["jablonski2000"],
     },
     {
       text: "Skin color doesn't sort people into groups. It varies continuously, the same dark-pigmentation variants are shared by populations on different continents, and the genetic architecture of skin color differs from place to place.",
@@ -106,6 +141,7 @@ const skinTone = {
   ],
 
   sources: {
+    ...evolutionSources("jablonski2010", "norton2007", "mathieson2015", "wilde2014"),
     lamason2005: {
       citation:
         "Lamason RL et al. (2005). SLC24A5, a putative cation exchanger, affects pigmentation in zebrafish and humans. Science 310:1782–1786.",

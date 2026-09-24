@@ -1,6 +1,7 @@
 // Freckles (self-reported: photos can't reliably count them - resolution,
 // makeup, filters and skin-smoothing all hide freckles). Claims checked
 // against source abstracts via Europe PMC (2026-09-23).
+import { evolutionSources } from "../evolution";
 
 const FRECKLE_GENES_HINT = {
   text: "Freckling has been linked to variants in several pigmentation genes, including MC1R, IRF4 and BNC2, each with its own effect. Having freckles, or not, can't pin down a genotype.",
@@ -12,6 +13,14 @@ const freckles = {
   title: "Freckles",
   selfReport:
     "Photos can't reliably count freckles (resolution, makeup, filters and skin smoothing all hide them), so tell us yours.",
+
+  history: [
+    {
+      evidence: "leading",
+      text: "Freckles probably have no advantage of their own. MC1R, one of the main genes behind them, is held unchanged by strong selection in Africa; outside Africa that constraint relaxed and variants built up as random drift would predict, including the kinds that make freckling more likely.",
+      cite: ["harding2000", "eriksson2010"],
+    },
+  ],
 
   mechanism: [
     {
@@ -88,6 +97,7 @@ const freckles = {
   ],
 
   sources: {
+    ...evolutionSources("harding2000"),
     eriksson2010: {
       citation:
         "Eriksson N et al. (2010). Web-based, participant-driven studies yield novel genetic associations for common traits. PLoS Genet 6:e1000993.",

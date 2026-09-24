@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import Cite, { citationOrder } from "./Cite";
 import CardHeader, { accentOf } from "./CardHeader";
+import EvolutionDetails from "./EvolutionDetails";
 import GeneticsDetails from "./GeneticsDetails";
 import Icon from "./Icon";
 
@@ -84,6 +85,7 @@ export default function ShapeCard({ content, part }) {
         </p>
       </section>
 
+      <EvolutionDetails content={content} cite={cite} />
       <GeneticsDetails content={content} order={order} cite={cite} />
     </article>
   );

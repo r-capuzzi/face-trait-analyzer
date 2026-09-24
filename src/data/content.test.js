@@ -3,6 +3,8 @@
 // listed (it would render as "[undefined]"), no listed source that nothing
 // cites, and every source links somewhere a reader can check it.
 import { citationOrder } from "../components/Cite";
+import { EVIDENCE } from "./evolution";
+import { FACE_SOURCES } from "./shape/common";
 import eyeColor from "./traits/eyeColor";
 import hairColor from "./traits/hairColor";
 import skinTone from "./traits/skinTone";
@@ -38,12 +40,25 @@ describe.each(ALL.map((c) => [c.id, c]))("%s content", (_id, content) => {
     expect(Object.keys(content.sources).filter((k) => !cited.includes(k))).toEqual([]);
   });
 
+  test("has a 'Why it evolved' section, every point labeled with a known evidence level", () => {
+    expect(content.history?.length).toBeGreaterThan(0);
+    for (const h of content.history) {
+      expect(Object.keys(EVIDENCE)).toContain(h.evidence);
+      expect(h.text.length).toBeGreaterThan(40);
+    }
+  });
+
   test("every source a reader can open", () => {
     for (const k of cited) {
       const src = content.sources[k];
       expect(Boolean(src.doi || src.url), k).toBe(true);
     }
   });
+});
+
+test("every shared face-shape source is cited by at least one shape card", () => {
+  const cited = new Set(ALL.filter((c) => c.measures).flatMap((c) => [...citationOrder(c).keys()]));
+  expect(Object.keys(FACE_SOURCES).filter((k) => !cited.has(k))).toEqual([]);
 });
 
 test("card ids are unique (they namespace the source anchors)", () => {

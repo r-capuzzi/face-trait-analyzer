@@ -21,6 +21,19 @@ const hairline = {
     },
   ],
 
+  history: [
+    {
+      evidence: "strong",
+      text: "A vertical forehead is new in human evolution: our Middle Pleistocene relatives had heavy brow ridges instead. (For why that may have mattered, see Eyebrows.)",
+      cite: ["godinho2018"],
+    },
+    {
+      evidence: "unknown",
+      text: "Male-pattern baldness is common and highly heritable, yet no evolutionary explanation for it has been established.",
+      cite: ["heilmann2017"],
+    },
+  ],
+
   mechanism: [
     {
       text: "Forehead height depends on where the hairline sits, and for many people that moves with age. The most common kind of hair loss, male-pattern baldness, is driven by androgens, highly heritable, and mostly a matter of genetic predisposition.",

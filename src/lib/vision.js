@@ -3,8 +3,6 @@
 // All color measurement happens afterwards in plain JS (src/lib/traits/),
 // which is what keeps that logic unit-testable without loading any model.
 
-import { FaceLandmarker, FilesetResolver, ImageSegmenter } from "@mediapipe/tasks-vision";
-
 // __MEDIAPIPE_VERSION__ is injected by vite.config.js from the installed
 // package, so the WASM runtime always matches the JS API.
 const WASM_BASE = `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${__MEDIAPIPE_VERSION__}/wasm`;
@@ -40,6 +38,9 @@ export function preloadVision() {
 }
 
 async function createVision() {
+  // Loaded on first use, not with the page: MediaPipe's JS is a third of
+  // the bundle, and nobody needs it until they pick (or hover over) a photo.
+  const { FaceLandmarker, FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
   const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
   // CPU delegate: single photos don't need GPU speed, and CPU gives the same
   // numbers on every machine (GPU float precision varies by driver).

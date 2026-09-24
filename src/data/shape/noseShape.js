@@ -33,6 +33,24 @@ const noseShape = {
     },
   ],
 
+  history: [
+    {
+      evidence: "leading",
+      text: "The nose warms and humidifies the air we breathe. Nostril width varies across the world more than random drift alone would predict, and it correlates with temperature and absolute humidity, pointing to adaptation to climate. The researchers call this a simplified explanation of a complex history that may also involve other forces, such as mate choice.",
+      cite: ["zaidi2017"],
+    },
+    {
+      evidence: "strong",
+      text: "The inside of the nose tracks climate too: the bony nasal cavity is shaped to increase contact between air and tissue in cold, dry climates.",
+      cite: ["noback2011"],
+    },
+    {
+      evidence: "strong",
+      text: "Extreme cold is one of the few places where skull shape clearly departed from random drift, and the nose was among the features affected.",
+      cite: ["roseman2004"],
+    },
+  ],
+
   mechanism: [
     {
       text: "In a study of about 6,000 people that scored 14 facial features, most of the genetic hits were for the nose: variants near GLI3 and PAX1 were linked to the width of the nose wings, RUNX2 to the width of the nose bridge, and DCHS2 to how the base between the nostrils angles.",
@@ -41,10 +59,6 @@ const noseShape = {
     {
       text: "Another study linked variants near SOX9 and DHX35 to nose shape, and replicated six previously known nose loci.",
       cite: ["cha2018"],
-    },
-    {
-      text: "Why noses vary: the nose warms and humidifies the air we breathe. Nostril width varies across the world more than random drift alone would predict and correlates with temperature and absolute humidity. The authors call climate a simplified explanation of a more complex history.",
-      cite: ["zaidi2017"],
     },
     ...FACE_MECHANISM,
   ],

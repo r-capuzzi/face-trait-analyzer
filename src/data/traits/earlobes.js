@@ -2,6 +2,7 @@
 // behind hair or shows them edge-on; the genetics studies scored them from
 // photos taken at a 45° angle). Claims checked against source abstracts and
 // full text via Europe PMC (2026-09-24).
+import { evolutionSources } from "../evolution";
 
 const POLYGENIC = {
   text: "Earlobe attachment is polygenic: the largest study, of 74,660 people, found 49 DNA regions linked to it. With that many small effects, your earlobes can't reveal a genotype.",
@@ -13,6 +14,19 @@ const earlobes = {
   title: "Earlobes",
   selfReport:
     "A front-facing photo usually hides your earlobes behind hair or shows them edge-on (studies photograph them from the side), so tell us yours.",
+
+  history: [
+    {
+      evidence: "unknown",
+      text: "Earlobe shape has no known function or evolutionary advantage.",
+      cite: [],
+    },
+    {
+      evidence: "hypothesis",
+      text: "One earlobe gene did evolve under selection, probably for something else. EDAR's 370A variant, linked to lobe size and attachment, spread through strong natural selection; the leading ideas for why involve sweat glands or milk ducts, so ear shape likely changed along the way. One gene shaping several traits (pleiotropy) is common in evolution.",
+      cite: ["adhikari2015", "kamberov2013", "hlusko2018"],
+    },
+  ],
 
   mechanism: [
     {
@@ -90,6 +104,7 @@ const earlobes = {
   ],
 
   sources: {
+    ...evolutionSources("kamberov2013", "hlusko2018"),
     shaffer2017: {
       citation:
         "Shaffer JR et al. (2017). Multiethnic GWAS reveals polygenic architecture of earlobe attachment. Am J Hum Genet 101:913–924.",

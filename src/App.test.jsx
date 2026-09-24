@@ -224,3 +224,16 @@ describe("color correction", () => {
     expect(screen.getByRole("button", { name: "Correct the colors" })).toBeInTheDocument();
   });
 });
+
+test("each card explains why the trait evolved, with the strength of the evidence", async () => {
+  mockPipeline({ faces: [{ points: blueFace.points, blendshapes: {}, matrix: null }] });
+  const user = await upload();
+  const skin = await screen.findByRole("article", { name: "Skin tone" });
+  await user.click(within(skin).getByText("Why it evolved"));
+  expect(within(skin).getByText(/skin needs UVB light to make vitamin D/)).toBeInTheDocument();
+  expect(within(skin).getAllByText("Well supported").length).toBeGreaterThan(0);
+  expect(within(skin).getAllByText("Leading explanation").length).toBeGreaterThan(0);
+  // a trait with no known purpose says so rather than inventing one
+  const peak = screen.getByRole("article", { name: "Widow's peak" });
+  expect(within(peak).getByText("Unknown")).toBeInTheDocument();
+});

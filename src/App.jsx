@@ -110,8 +110,8 @@ export default function App() {
           </h1>
           <p className="hero__lede">
             Measures the color of your eyes, hair and skin and the shape of your eyes, eyebrows, nose
-            and lips from a photo, then explains the genes behind each trait and how well science
-            understands them.
+            and lips from a photo, then explains the genes behind each trait, why it evolved, and how
+            well science understands both.
           </p>
           <ul className="promises">
             <li>

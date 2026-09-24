@@ -13,6 +13,14 @@ const widowsPeak = {
   selfReport:
     "The hair outline this app uses is too coarse to trace the small V at the center of a hairline, so tell us yours.",
 
+  history: [
+    {
+      evidence: "unknown",
+      text: "No evolutionary explanation for the widow's peak has been proposed with evidence. Like much human variation, hairline shape may simply vary by chance.",
+      cite: [],
+    },
+  ],
+
   mechanism: [
     {
       text: "A widow's peak is a V-shaped point where the hairline dips down at the center of the forehead.",

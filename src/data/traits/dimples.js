@@ -2,6 +2,7 @@
 // both kinds are shallow dents that lighting easily hides). Claims checked
 // against source abstracts / full text via Europe PMC and the GWAS Catalog
 // (2026-09-24).
+import { evolutionSources } from "../evolution";
 
 const CHIN_POLYGENIC = {
   text: "Chin dimples are polygenic: the one large genetic study estimated about 57 DNA regions linked to them, each raising the odds only slightly. No genotype can be read from a chin.",
@@ -18,6 +19,19 @@ const dimples = {
   title: "Dimples",
   selfReport:
     "Cheek dimples usually appear only mid-smile, and lighting easily hides a shallow dent, so tell us yours.",
+
+  history: [
+    {
+      evidence: "unknown",
+      text: "Cheek dimples have no known evolutionary purpose. If they come from a split smile muscle, they're one of many harmless variations in the face's muscles: the same anatomy study found such variation to be common.",
+      cite: ["pessa1998"],
+    },
+    {
+      evidence: "unknown",
+      text: "Chin dimples sit on a feature that is itself a puzzle: the chin is unique to modern humans, and a century of explanations (speech, chewing, mate choice, or a side effect of the face shrinking back) hasn't produced a consensus.",
+      cite: ["pampush2016"],
+    },
+  ],
 
   mechanism: [
     {
@@ -99,6 +113,7 @@ const dimples = {
   ],
 
   sources: {
+    ...evolutionSources("pampush2016"),
     pessa1998: {
       citation:
         "Pessa JE et al. (1998). Double or bifid zygomaticus major muscle: anatomy, incidence, and clinical correlation. Clin Anat 11:310–313.",

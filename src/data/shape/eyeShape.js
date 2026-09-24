@@ -31,6 +31,24 @@ const eyeShape = {
     },
   ],
 
+  history: [
+    {
+      evidence: "strong",
+      text: "Compared with nearly half of all primate species, humans show the largest share of the white of the eye (sclera) and the most horizontally stretched eye opening.",
+      cite: ["kobayashi2001"],
+    },
+    {
+      evidence: "hypothesis",
+      text: "Why is debated. The original proposal: a wide, stretched eye widens the view when scanning with the eyes, and a pale sclera makes gaze direction easy to read, helping cooperation. A 2025 review argues the second part lacks solid support: human eye coloring isn't uniquely conspicuous among primates and varies between people.",
+      cite: ["kobayashi2001", "pereagarcia2025"],
+    },
+    {
+      evidence: "unknown",
+      text: "Differences in eye shape between individuals have no established evolutionary explanation.",
+      cite: [],
+    },
+  ],
+
   mechanism: [
     ...FACE_MECHANISM,
     {

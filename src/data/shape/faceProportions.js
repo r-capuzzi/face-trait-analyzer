@@ -43,6 +43,24 @@ const faceProportions = {
     },
   ],
 
+  history: [
+    {
+      evidence: "strong",
+      text: "Most differences in skull and face shape between populations match random drift, the chance changes that build up as populations separate, rather than natural selection. A population living in extreme cold was the exception: its skull breadth and nose appear to have adapted.",
+      cite: ["roseman2004"],
+    },
+    {
+      evidence: "leading",
+      text: "Jaws respond to diet as they grow. Hunter-gatherers have consistently longer, narrower lower jaws than farmers, most likely because softer food changes how the jaw develops, and that mismatch between jaw and teeth is a reason crowded teeth are so common today.",
+      cite: ["cramon2011"],
+    },
+    {
+      evidence: "unknown",
+      text: "The chin is unique to modern humans, and why we have one is unresolved: explanations range from speech, chewing and mate choice to a side effect of the face shrinking back, and none has won out.",
+      cite: ["pampush2016"],
+    },
+  ],
+
   mechanism: [
     {
       text: "Genes shape the face as a whole: in one family study, most facial measurements were strongly genetically correlated with each other, indicating a large overlap in the variants that influence them. Widths were slightly more heritable than heights.",
