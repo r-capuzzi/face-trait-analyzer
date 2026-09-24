@@ -1,4 +1,5 @@
 import Icon from "./Icon";
+import SourceList from "./SourceList";
 
 // The collapsible "How it works" section shared by color and shape cards:
 // mechanism, key genes (if any), myths, limitations and numbered sources.
@@ -63,22 +64,7 @@ export default function GeneticsDetails({ content, order, cite }) {
       </ul>
 
       <h4>Sources</h4>
-      <ol className="sources">
-        {[...order.keys()].map((k) => {
-          const src = content.sources[k];
-          // a few journals don't issue DOIs (and database entries have none);
-          // those sources carry a URL instead. encodeURI: some old DOIs contain <>.
-          const href = src.doi ? `https://doi.org/${encodeURI(src.doi)}` : src.url;
-          return (
-            <li key={k} id={`src-${content.id}-${k}`}>
-              {src.citation}{" "}
-              <a href={href} target="_blank" rel="noreferrer">
-                {src.doi ? `doi:${src.doi}` : (src.linkLabel ?? "full text")}
-              </a>
-            </li>
-          );
-        })}
-      </ol>
+      <SourceList content={content} order={order} />
     </details>
   );
 }

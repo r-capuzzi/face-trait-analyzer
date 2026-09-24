@@ -1,8 +1,10 @@
 import Icon from "./Icon";
 
 // Photo-quality findings, shown once above the color cards. Each one also
-// lowers the confidence of the traits it affects.
-export default function QualityBanner({ issues, warnings }) {
+// lowers the confidence of the traits it affects. A color cast is the one
+// problem the app can fix, so that finding offers the correction directly.
+export default function QualityBanner({ issues, warnings, onCorrectColors }) {
+  const cast = issues.some((i) => i.id === "color-cast");
   const all = [...warnings, ...issues.map((i) => i.message)];
   if (all.length === 0) {
     return (
@@ -22,6 +24,11 @@ export default function QualityBanner({ issues, warnings }) {
           ))}
         </ul>
         <p className="callout__note">These lower the confidence of the affected results.</p>
+        {cast && onCorrectColors && (
+          <button type="button" className="button button--ghost button--small" onClick={onCorrectColors}>
+            <Icon name="target" size={16} /> Correct the colors
+          </button>
+        )}
       </div>
     </div>
   );

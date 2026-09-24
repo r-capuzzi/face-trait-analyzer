@@ -14,7 +14,7 @@ export default function AboutSection() {
           <h3>What it is</h3>
           <p>
             An educational explainer. It measures the color and shape of facial traits in a photo and
-            explains the genetics of each, with sources. It is <strong>not a genetic test</strong>: a
+            explains the genetics and evolutionary history of each, with sources. It is <strong>not a genetic test</strong>: a
             photo can&apos;t reveal your genotype, and the explanations say how much (or how little) the
             science can infer.
           </p>
@@ -53,7 +53,13 @@ export default function AboutSection() {
           </p>
           <p>
             Camera white balance and room lighting shift every color. For the best result, use daylight
-            from a window in front of you, no filters and no flash.
+            from a window in front of you, no filters and no flash. If the light was colored, use
+            <strong> Correct the colors</strong> and pick something in the photo that should be white or gray.
+          </p>
+          <p>
+            In <strong>Why it evolved</strong>, every point carries an evidence label, from{" "}
+            <em>well supported</em> to <em>unknown</em>. Evolutionary explanations range from measured to
+            guesswork, and some traits have no known purpose at all; the labels say which is which.
           </p>
         </section>
       </div>

@@ -6,8 +6,8 @@ import Icon from "./Icon";
 export default function ColorCorrection({ picking, corrected, error, onStart, onCancel, onUndo }) {
   if (picking) {
     return (
-      <div className="correct is-active">
-        <p className="correct__text" role="status">
+      <div className="recolor is-active">
+        <p className="recolor__text" role="status">
           <Icon name="target" size={18} />
           <span>
             Click something that should be <strong>white or gray</strong>: a shirt, a wall, a sheet of paper.
@@ -28,12 +28,12 @@ export default function ColorCorrection({ picking, corrected, error, onStart, on
 
   if (corrected) {
     return (
-      <div className="correct">
-        <p className="correct__text" role="status">
+      <div className="recolor">
+        <p className="recolor__text" role="status">
           <Icon name="check" size={18} />
           <span>Colors corrected for the lighting, using the spot circled on your photo.</span>
         </p>
-        <div className="correct__actions">
+        <div className="recolor__actions">
           <button type="button" className="button button--ghost button--small" onClick={onStart}>
             Pick another spot
           </button>
@@ -46,12 +46,12 @@ export default function ColorCorrection({ picking, corrected, error, onStart, on
   }
 
   return (
-    <div className="correct">
-      <p className="correct__text">
+    <div className="recolor">
+      <p className="recolor__text">
         <Icon name="target" size={18} />
         <span>
-          Warm or colored light tints every color measured. If something in your photo should be white or
-          gray, you can use it to remove the tint.
+          Colored light tints every color measured. Pick something white or gray in your photo to remove
+          the tint.
         </span>
       </p>
       <button type="button" className="button button--ghost button--small" onClick={onStart}>

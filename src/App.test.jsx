@@ -6,6 +6,7 @@ import { syntheticHead } from "./test/syntheticHead";
 import { designedFace } from "./test/designedFace";
 import { loadImageFile, ImageLoadError } from "./lib/imageLoad";
 import { getVision } from "./lib/vision";
+import { applyGains } from "./lib/whiteBalance";
 
 // MediaPipe needs WebAssembly + WebGL and jsdom has no image decoding, so
 // both edges are mocked; everything between them (analysis, trait math,
@@ -236,4 +237,50 @@ test("each card explains why the trait evolved, with the strength of the evidenc
   // a trait with no known purpose says so rather than inventing one
   const peak = screen.getByRole("article", { name: "Widow's peak" });
   expect(within(peak).getByText("Unknown")).toBeInTheDocument();
+});
+
+test("section 04 lays the history out in time, linking back to the cards", async () => {
+  mockPipeline({ faces: [{ points: blueFace.points, blendshapes: {}, matrix: null }] });
+  await upload();
+  const timelineCard = await screen.findByRole("article", { name: /Timeline of how human faces evolved/ });
+  expect(within(timelineCard).getByText("About 1.6 million years ago")).toBeInTheDocument();
+  // every "See ..." link lands on a card heading that exists on the page
+  const links = within(timelineCard).getAllByRole("link").filter((a) => a.getAttribute("href").startsWith("#"));
+  expect(links.length).toBeGreaterThan(10);
+  for (const a of links) expect(document.getElementById(a.getAttribute("href").slice(1))).not.toBeNull();
+});
+
+test("the at-a-glance bar summarizes the color results and links to every section", async () => {
+  mockPipeline({ faces: [{ points: blueFace.points, blendshapes: {}, matrix: null }] });
+  const user = await upload();
+  const glance = await screen.findByRole("navigation", { name: "Results at a glance" });
+  expect(within(glance).getByRole("link", { name: /Eyes\s*Blue \/ gray/ })).toHaveAttribute("href", "#trait-eye");
+  for (const a of within(glance).getAllByRole("link")) {
+    expect(document.getElementById(a.getAttribute("href").slice(1))).not.toBeNull();
+  }
+  // a correction in a card shows up in the summary as the visitor's pick
+  const eye = screen.getByRole("article", { name: "Eye color" });
+  await user.selectOptions(within(eye).getByRole("combobox"), "brown");
+  expect(within(glance).getByText("Brown (your pick)")).toBeInTheDocument();
+});
+
+test("a color cast in the photo check offers the color correction right there", async () => {
+  // warm light: the whites of the eyes come out clearly orange
+  const face = syntheticFace({ right: BLUE, left: BLUE });
+  const warm = applyGains(face.imageData, { r: 1.15, g: 1, b: 0.6 });
+  mockPipeline({ faces: [{ points: face.points, blendshapes: {}, matrix: null }], imageData: warm });
+  const user = await upload();
+  const check = (await screen.findByText(/lighting looks warm/)).closest(".callout");
+  await user.click(within(check).getByRole("button", { name: "Correct the colors" }));
+  expect(screen.getByLabelText(/Move the crosshair with the arrow keys/)).toHaveFocus();
+});
+
+test("the results summary can be copied as plain text", async () => {
+  mockPipeline({ faces: [{ points: blueFace.points, blendshapes: {}, matrix: null }] });
+  const user = await upload(); // user-event installs a clipboard stub we can read back
+  await user.click(await screen.findByRole("button", { name: "Copy results summary" }));
+  expect(await screen.findByText(/Copied\. It holds labels and numbers only/)).toBeInTheDocument();
+  const copied = await navigator.clipboard.readText();
+  expect(copied).toMatch(/Eye color: Blue \/ gray/);
+  expect(copied).toContain("FACE SHAPE");
 });

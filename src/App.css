@@ -289,6 +289,9 @@
   color: var(--ok-text);
   font-weight: 500;
 }
+.callout .button {
+  margin-top: 10px;
+}
 .callout__note {
   margin: 0;
   font-size: 0.85rem;
@@ -308,7 +311,7 @@
   }
   /* Keep the annotated photo in view while reading the cards. A sticky
      panel taller than the window can never be scrolled to its bottom, so
-     the photo shrinks to leave room for the controls under it (~360 px),
+     the photo shrinks to leave room for the controls under it (~470 px),
      and the panel scrolls on its own if they still don't fit (e.g. on a
      768 px laptop screen with an error message showing). */
   .results__photo {
@@ -319,7 +322,7 @@
     overscroll-behavior: contain;
   }
   .results__photo .photo {
-    max-height: max(300px, calc(100vh - 430px));
+    max-height: max(240px, calc(100vh - 510px));
   }
 }
 .results__traits {
@@ -349,7 +352,7 @@
 }
 
 /* color correction: pick a white or gray spot on the photo */
-.correct {
+.recolor {
   display: grid;
   gap: 10px;
   margin: 14px 0;
@@ -358,11 +361,11 @@
   border-radius: var(--radius-sm);
   background: var(--surface);
 }
-.correct.is-active {
+.recolor.is-active {
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--ok-bg);
 }
-.correct__text {
+.recolor__text {
   display: flex;
   gap: 10px;
   align-items: flex-start;
@@ -370,26 +373,57 @@
   font-size: 0.9rem;
   color: var(--muted);
 }
-.correct__text strong {
+.recolor__text strong {
   color: var(--text);
 }
-.correct__text .icon {
+.recolor__text .icon {
   flex: none;
   margin-top: 1px;
   color: var(--accent);
 }
-.correct__actions {
+.recolor__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-.correct .callout {
+.recolor .callout {
   margin: 0;
 }
-.button--small {
+.button.button--small {
   justify-self: start;
   padding: 7px 14px;
   font-size: 0.88rem;
+}
+
+/* copy a text summary of the results */
+.copy-summary {
+  display: grid;
+  gap: 6px;
+  margin: 0 0 14px;
+}
+.copy-summary .button {
+  justify-self: start;
+}
+.copy-summary__status {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--ok-text);
+}
+.copy-summary__manual {
+  display: grid;
+  gap: 6px;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+.copy-summary__manual textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font: 0.8rem/1.4 ui-monospace, Consolas, monospace;
 }
 
 .chips {
@@ -840,6 +874,125 @@
   text-transform: uppercase;
   color: var(--muted);
 }
+/* at a glance: the color results and jump links above the long results */
+.glance {
+  display: grid;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.glance ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.glance__results a {
+  display: grid;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--text);
+  text-decoration: none;
+}
+.glance__results a:hover {
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+.glance__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.glance__value {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 600;
+}
+.glance__sections a {
+  display: inline-block;
+  padding: 4px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+.glance__sections a:hover {
+  border-color: var(--accent);
+}
+.glance__sections span {
+  color: var(--accent);
+}
+/* jump targets land with a little room above them */
+.section-header,
+.card h2 {
+  scroll-margin-top: 16px;
+}
+
+/* section 04: a vertical timeline, oldest first */
+.timeline {
+  position: relative;
+  display: grid;
+  gap: 22px;
+  margin: 0;
+  padding: 0 0 0 22px;
+  list-style: none;
+}
+/* the line the events hang on */
+.timeline::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  left: 5px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--border-strong);
+}
+.timeline__event {
+  position: relative;
+  display: grid;
+  gap: 4px;
+}
+.timeline__event::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: -22px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--tone);
+  border-radius: 50%;
+  background: var(--surface);
+}
+.timeline__when {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.timeline__body h3 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+.timeline__body p {
+  margin: 8px 0 0;
+}
+.timeline__cards {
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
 /* why it evolved: one point per item, each with an evidence label */
 .history__frame {
   font-size: 0.9rem;

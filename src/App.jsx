@@ -10,24 +10,18 @@ import QualityBanner from "./components/QualityBanner";
 import AboutSection from "./components/AboutSection";
 import ShapeCard from "./components/ShapeCard";
 import ColorCorrection from "./components/ColorCorrection";
+import DeepHistory from "./components/DeepHistory";
+import AtAGlance from "./components/AtAGlance";
+import CopySummary from "./components/CopySummary";
+import { summarizeResult } from "./lib/summary";
+import timeline from "./data/timeline";
 import HeroArt from "./components/HeroArt";
 import Icon from "./components/Icon";
 import { useAnalysis } from "./hooks/useAnalysis";
 import eyeColor from "./data/traits/eyeColor";
 import hairColor from "./data/traits/hairColor";
 import skinTone from "./data/traits/skinTone";
-import eyeShape from "./data/shape/eyeShape";
-import noseShape from "./data/shape/noseShape";
-import lipShape from "./data/shape/lipShape";
-import eyebrows from "./data/shape/eyebrows";
-import faceProportions from "./data/shape/faceProportions";
-import hairline from "./data/shape/hairline";
-import facialHair from "./data/shape/facialHair";
-import hairTexture from "./data/traits/hairTexture";
-import freckles from "./data/traits/freckles";
-import widowsPeak from "./data/traits/widowsPeak";
-import dimples from "./data/traits/dimples";
-import earlobes from "./data/traits/earlobes";
+import { SELF_REPORTED, SHAPE_CARDS } from "./data/cards";
 import "./App.css";
 
 // Overlay layers; the dots double as a legend for the colors drawn on the photo.
@@ -55,20 +49,14 @@ const TRAITS = [
   { key: "skin", content: skinTone, details: (t) => <SkinDetails skin={t} /> },
 ];
 
-// Face-shape cards: content + where its measurements live in the result.
-const SHAPES = [
-  { content: faceProportions, part: (t) => (t.shape.status === "ok" ? t.shape.face : t.shape) },
-  { content: hairline, part: (t) => t.hairline },
-  { content: eyeShape, part: (t) => (t.shape.status === "ok" ? t.shape.eyes : t.shape) },
-  { content: eyebrows, part: (t) => t.brows },
-  { content: noseShape, part: (t) => (t.shape.status === "ok" ? t.shape.nose : t.shape) },
-  { content: lipShape, part: (t) => (t.shape.status === "ok" ? t.shape.lips : t.shape) },
-  { content: facialHair, part: (t) => t.beard },
+// The numbered sections, for their headers and the jump links above them.
+const SECTIONS = [
+  ["01", "Color"],
+  ["02", "Face shape"],
+  ["03", "What a photo can't measure"],
+  ["04", "How faces got this way"],
 ];
-
-// Traits a photo can't measure reliably: the visitor picks theirs and reads
-// the genetics. Nothing here comes from the photo.
-const SELF_REPORTED = [hairTexture, widowsPeak, freckles, dimples, earlobes];
+const titleOf = (number) => SECTIONS.find(([n]) => n === number)[1];
 
 export default function App() {
   const { state, analyzeFile, reset, correctColors, undoCorrection, clearCorrectionError } = useAnalysis();
@@ -189,20 +177,33 @@ export default function App() {
                 onCancel={() => setPicking(false)}
                 onUndo={undoCorrection}
               />
+              <CopySummary getText={() => summarizeResult(result, { overrides, correction: state.correction })} />
               <button type="button" className="button button--ghost" onClick={startOver}>
                 <Icon name="refresh" size={18} /> Analyze another photo
               </button>
             </aside>
 
             <div className="results__traits">
-              <SectionHeader number="01" title="Color" lede="Pigment in your eyes, hair and skin." />
+              <AtAGlance
+                traits={TRAITS.map(({ key, content }) => ({
+                  content,
+                  measurement: result.traits[key],
+                  override: overrides[key] ?? null,
+                }))}
+                sections={SECTIONS}
+              />
+              <SectionHeader number="01" lede="Pigment in your eyes, hair and skin." />
               {state.correction && (
                 <p className="callout callout--ok">
                   <Icon name="target" size={18} /> Colors below are corrected for the lighting, using the white or
                   gray spot you picked on your photo.
                 </p>
               )}
-              <QualityBanner issues={result.quality.issues} warnings={result.warnings} />
+              <QualityBanner
+                issues={result.quality.issues}
+                warnings={result.warnings}
+                onCorrectColors={state.correction ? null : startPicking}
+              />
               {TRAITS.map(({ key, content, details }) => (
                 <TraitCard
                   key={key}
@@ -216,16 +217,14 @@ export default function App() {
 
               <SectionHeader
                 number="02"
-                title="Face shape"
                 lede="Measured relative to your own face. There are no 'normal' ranges and no better or worse: published norms are split by ethnic group, and this tool doesn't compare you to groups. A relaxed face photographed from about 1.5 m works best."
               />
-              {SHAPES.map(({ content, part }) => (
+              {SHAPE_CARDS.map(({ content, part }) => (
                 <ShapeCard key={content.id} content={content} part={part(result.traits)} />
               ))}
 
               <SectionHeader
                 number="03"
-                title="What a photo can't measure"
                 lede="Some traits don't show up reliably in a photo. Pick yours to read the genetics; nothing in this section comes from your picture."
               />
               {SELF_REPORTED.map((content) => (
@@ -237,6 +236,14 @@ export default function App() {
                   onOverride={setOverride(content.id)}
                 />
               ))}
+
+              <SectionHeader
+                number="04"
+                lede={
+                  "The cards' \"Why it evolved\" points, in time order: from 25 million years ago to the last 5,000 years. It's the history of our species, not a reading of your own ancestry."
+                }
+              />
+              <DeepHistory content={timeline} />
             </div>
           </section>
         )}
@@ -247,14 +254,14 @@ export default function App() {
   );
 }
 
-function SectionHeader({ number, title, lede }) {
+function SectionHeader({ number, lede }) {
   return (
-    <header className="section-header">
+    <header className="section-header" id={`section-${number}`}>
       <span className="section-header__number" aria-hidden="true">
         {number}
       </span>
       <div>
-        <h2>{title}</h2>
+        <h2>{titleOf(number)}</h2>
         <p>{lede}</p>
       </div>
     </header>

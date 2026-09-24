@@ -5,6 +5,7 @@
 import { citationOrder } from "../components/Cite";
 import { EVIDENCE } from "./evolution";
 import { FACE_SOURCES } from "./shape/common";
+import timeline from "./timeline";
 import eyeColor from "./traits/eyeColor";
 import hairColor from "./traits/hairColor";
 import skinTone from "./traits/skinTone";
@@ -64,4 +65,33 @@ test("every shared face-shape source is cited by at least one shape card", () =>
 test("card ids are unique (they namespace the source anchors)", () => {
   const ids = ALL.map((c) => c.id);
   expect(new Set(ids).size).toBe(ids.length);
+});
+
+describe("timeline (section 04)", () => {
+  const cited = [...citationOrder(timeline).keys()];
+
+  test("citations resolve, and every listed source is cited", () => {
+    expect(cited.filter((k) => !(k in timeline.sources))).toEqual([]);
+    expect(Object.keys(timeline.sources).filter((k) => !cited.includes(k))).toEqual([]);
+  });
+
+  test("every event has a valid evidence label and links to real cards", () => {
+    // heading ids as the cards render them: color and self-report cards are
+    // "trait-<id>", shape cards (the ones with measures) "shape-<id>"
+    const ids = ALL.map((c) => (c.measures ? `shape-${c.id}` : `trait-${c.id}`));
+    for (const e of timeline.events) {
+      expect(Object.keys(EVIDENCE)).toContain(e.evidence);
+      expect(e.cards.length).toBeGreaterThan(0);
+      for (const [id] of e.cards) expect(ids).toContain(id);
+    }
+  });
+
+  test("events run oldest first where they give numeric dates", () => {
+    const years = (w) => {
+      const m = w.match(/([\d,.]+)\s*(million)?/);
+      return m ? Number(m[1].replace(/,/g, "")) * (m[2] ? 1e6 : 1) : null;
+    };
+    const dated = timeline.events.map((e) => years(e.when)).filter((y) => y !== null);
+    expect(dated).toEqual([...dated].sort((a, b) => b - a));
+  });
 });

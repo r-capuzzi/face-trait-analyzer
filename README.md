@@ -81,9 +81,22 @@ Every card has a "Why it evolved" section: how the trait came to vary among huma
   - Meat and simple food processing cut chewing long before farming (Zink & Lieberman 2016).
   - Chimpanzees share our facial-expression muscles, including the smile muscle behind dimples (Burrows 2006).
   - Our vestigial ear muscles still fire toward sounds (Strauss 2020).
+  - Eye sockets are larger farther from the equator, matching dimmer light (Pearce & Dunbar 2012).
+  - Brow ridges kept shrinking within our own species (Cieri 2014).
+  - The main baldness-risk version of the androgen receptor gene may have spread by hitchhiking on a favored neighbor (Hillmer 2009).
 - **Some traits have no known purpose.** Earlobes, cheek dimples and the widow's peak are labeled "unknown" rather than given a made-up story. Most face and skull variation between populations fits random drift (Roseman 2004).
 
 The section frames it as the history of our species, never as a reading of the viewer's own ancestry. A test requires every card to have one, with a valid evidence label on every point.
+
+### How faces got this way
+
+Section 04 lays the cards' evolutionary points out as a timeline ([`timeline.js`](src/data/timeline.js)). It starts about 25 million years ago with ears that turned toward sounds, runs through *Homo erectus*, Neanderthals, the EDAR variant, and farming, and ends with selection for lighter pigment in the last 5,000 years. Dates appear only where a source gives one. Each event carries the evidence label of its weakest claim and links back to the cards it explains. Tests check its citations, that its links point at real cards, and that dated events run oldest first.
+
+### Reading the results
+
+- **At a glance:** a bar above the results sums up eye, hair and skin color (including your own corrections) and links to the four sections.
+- **Copy results summary:** a button in the photo panel copies a plain-text summary with labels, rounded numbers, photo-check notes and your picks. It never includes the image. If the browser blocks the clipboard, the text appears in a box to copy by hand. This is the easiest way to report a result that looks wrong.
+- **Color-cast shortcut:** when the photo check detects a colored tint (from the whites of the eyes), the warning offers the color correction directly.
 
 ### Color correction
 
