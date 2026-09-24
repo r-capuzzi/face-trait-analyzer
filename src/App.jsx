@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import UploadPanel from "./components/UploadPanel";
 import ProcessingStatus from "./components/ProcessingStatus";
 import PhotoOverlay from "./components/PhotoOverlay";
@@ -9,6 +9,8 @@ import SkinDetails from "./components/SkinDetails";
 import QualityBanner from "./components/QualityBanner";
 import AboutSection from "./components/AboutSection";
 import ShapeCard from "./components/ShapeCard";
+import HeroArt from "./components/HeroArt";
+import Icon from "./components/Icon";
 import { useAnalysis } from "./hooks/useAnalysis";
 import eyeColor from "./data/traits/eyeColor";
 import hairColor from "./data/traits/hairColor";
@@ -16,13 +18,17 @@ import skinTone from "./data/traits/skinTone";
 import eyeShape from "./data/shape/eyeShape";
 import noseShape from "./data/shape/noseShape";
 import lipShape from "./data/shape/lipShape";
+import eyebrows from "./data/shape/eyebrows";
+import hairTexture from "./data/traits/hairTexture";
+import freckles from "./data/traits/freckles";
 import "./App.css";
 
-const LAYER_LABELS = {
-  regions: "Sampled pixels",
-  shape: "Face measurements",
-  mask: "Hair / skin mask",
-  landmarks: "Face landmarks",
+// Overlay layers; the dots double as a legend for the colors drawn on the photo.
+const LAYERS = {
+  regions: { label: "Sampled pixels", colors: ["#00e5ff", "#ff3cd2", "#ffa000"] },
+  shape: { label: "Face measurements", colors: ["#ffd400", "#ff4fd8", "#b07cff", "#5dff7a"] },
+  mask: { label: "Hair / skin mask", colors: ["#ffaa00", "#00c8ff"] },
+  landmarks: { label: "Face landmarks", colors: ["#00ff78"] },
 };
 
 // Trait cards in display order: content + trait-specific detail view.
@@ -42,13 +48,31 @@ const TRAITS = [
   { key: "skin", content: skinTone, details: (t) => <SkinDetails skin={t} /> },
 ];
 
-const SHAPES = [eyeShape, noseShape, lipShape];
+// Face-shape cards: content + where its measurements live in the result.
+const SHAPES = [
+  { content: eyeShape, part: (t) => (t.shape.status === "ok" ? t.shape.eyes : t.shape) },
+  { content: eyebrows, part: (t) => t.brows },
+  { content: noseShape, part: (t) => (t.shape.status === "ok" ? t.shape.nose : t.shape) },
+  { content: lipShape, part: (t) => (t.shape.status === "ok" ? t.shape.lips : t.shape) },
+];
+
+// Traits a photo can't measure reliably: the visitor picks theirs and reads
+// the genetics. Nothing here comes from the photo.
+const SELF_REPORTED = [hairTexture, freckles];
 
 export default function App() {
   const { state, analyzeFile, reset } = useAnalysis();
   const [layers, setLayers] = useState({ regions: true, shape: true, mask: false, landmarks: false });
   const [overrides, setOverrides] = useState({});
   const busy = ["loading-image", "loading-models", "analyzing"].includes(state.status);
+  const resultsHeading = useRef(null);
+
+  // The upload panel (and the focused file input) disappears when results
+  // arrive; move focus to the results so keyboard and screen-reader users
+  // land on them instead of being dropped back at the top of the page.
+  useEffect(() => {
+    if (state.status === "done") resultsHeading.current?.focus();
+  }, [state.status]);
 
   function startOver() {
     setOverrides({});
@@ -60,13 +84,30 @@ export default function App() {
 
   return (
     <div className="app">
-      <header className="app__header">
-        <h1>Trait Genetics Explainer</h1>
-        <p className="app__lede">
-          Measures your eye, hair and skin color and the proportions of your eyes, nose and lips
-          from a photo, then explains the genes behind each trait and how well science understands
-          them. It runs entirely in your browser and never guesses ancestry or ethnicity.
-        </p>
+      <header className="hero">
+        <div className="hero__text">
+          <p className="eyebrow">Photo · Traits · Genes</p>
+          <h1>
+            Trait Genetics <em>Explainer</em>
+          </h1>
+          <p className="hero__lede">
+            Measures the color of your eyes, hair and skin and the shape of your eyes, eyebrows, nose
+            and lips from a photo, then explains the genes behind each trait and how well science
+            understands them.
+          </p>
+          <ul className="promises">
+            <li>
+              <Icon name="shield" size={18} /> Your photo never leaves your device
+            </li>
+            <li>
+              <Icon name="book" size={18} /> Every claim cited
+            </li>
+            <li>
+              <Icon name="group" size={18} /> No ancestry or ethnicity guessing
+            </li>
+          </ul>
+        </div>
+        <HeroArt />
       </header>
 
       <main>
@@ -81,35 +122,45 @@ export default function App() {
         )}
         <ProcessingStatus status={state.status} />
         {state.status === "error" && (
-          <p className="error" role="alert">
-            {state.error}
+          <p className="callout callout--error" role="alert">
+            <Icon name="alert" size={18} /> {state.error}
           </p>
         )}
 
         {state.status === "done" && (
-          <section className="results">
-            <div className="results__photo">
-              <PhotoOverlay image={state.image} result={result} layers={layers} />
-              <fieldset className="layers">
+          <section className="results" aria-labelledby="results-heading">
+            <h2 id="results-heading" className="visually-hidden" tabIndex={-1} ref={resultsHeading}>
+              Your results
+            </h2>
+            <aside className="results__photo">
+              <div className="photo-frame">
+                <PhotoOverlay image={state.image} result={result} layers={layers} />
+              </div>
+              <fieldset className="chips">
                 <legend>Show on photo</legend>
-                {Object.entries(LAYER_LABELS).map(([key, label]) => (
-                  <label key={key}>
+                {Object.entries(LAYERS).map(([key, { label, colors }]) => (
+                  <label key={key} className={`chip ${layers[key] ? "is-on" : ""}`}>
                     <input
                       type="checkbox"
                       checked={layers[key]}
                       onChange={(e) => setLayers({ ...layers, [key]: e.target.checked })}
                     />
+                    <span className="chip__dots" aria-hidden="true">
+                      {colors.map((c) => (
+                        <span key={c} style={{ background: c }} />
+                      ))}
+                    </span>
                     {label}
                   </label>
                 ))}
               </fieldset>
-              <button type="button" className="button" onClick={startOver}>
-                Analyze another photo
+              <button type="button" className="button button--ghost" onClick={startOver}>
+                <Icon name="refresh" size={18} /> Analyze another photo
               </button>
-            </div>
+            </aside>
 
             <div className="results__traits">
-              <h2 className="section-title">Color</h2>
+              <SectionHeader number="01" title="Color" lede="Pigment in your eyes, hair and skin." />
               <QualityBanner issues={result.quality.issues} warnings={result.warnings} />
               {TRAITS.map(({ key, content, details }) => (
                 <TraitCard
@@ -122,21 +173,29 @@ export default function App() {
                 />
               ))}
 
-              <section className="shape" aria-labelledby="shape-heading">
-                <h2 id="shape-heading" className="section-title">Face shape</h2>
-                <p className="section-lede">
-                  Proportions within your own face. There are no 'normal' ranges and no better or worse:
-                  published norms are split by ethnic group, and this tool doesn't compare you to groups.
-                  For these, a relaxed face photographed from about 1.5 m works best.
-                </p>
-                {result.traits.shape.status === "ok" ? (
-                  SHAPES.map((content) => (
-                    <ShapeCard key={content.id} content={content} part={result.traits.shape[content.id]} />
-                  ))
-                ) : (
-                  <p className="trait__unmeasured">{result.traits.shape.reason}</p>
-                )}
-              </section>
+              <SectionHeader
+                number="02"
+                title="Face shape"
+                lede="Measured relative to your own face. There are no 'normal' ranges and no better or worse: published norms are split by ethnic group, and this tool doesn't compare you to groups. A relaxed face photographed from about 1.5 m works best."
+              />
+              {SHAPES.map(({ content, part }) => (
+                <ShapeCard key={content.id} content={content} part={part(result.traits)} />
+              ))}
+
+              <SectionHeader
+                number="03"
+                title="What a photo can't measure"
+                lede="Some traits don't show up reliably in a photo. Pick yours to read the genetics; nothing in this section comes from your picture."
+              />
+              {SELF_REPORTED.map((content) => (
+                <TraitCard
+                  key={content.id}
+                  content={content}
+                  measurement={{ status: "self-report", reason: content.selfReport }}
+                  override={overrides[content.id] ?? null}
+                  onOverride={setOverride(content.id)}
+                />
+              ))}
             </div>
           </section>
         )}
@@ -144,5 +203,19 @@ export default function App() {
 
       <AboutSection />
     </div>
+  );
+}
+
+function SectionHeader({ number, title, lede }) {
+  return (
+    <header className="section-header">
+      <span className="section-header__number" aria-hidden="true">
+        {number}
+      </span>
+      <div>
+        <h2>{title}</h2>
+        <p>{lede}</p>
+      </div>
+    </header>
   );
 }

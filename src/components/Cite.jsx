@@ -2,10 +2,12 @@
 // `order` maps a source key to its 1-based number within that card.
 export default function Cite({ keys, traitId, order }) {
   if (!keys?.length) return null;
+  // show numbers ascending ([1, 2, 3], not [3, 1, 2]) whatever order they were cited in
+  const sorted = [...keys].sort((a, b) => order.get(a) - order.get(b));
   return (
     <sup className="cite">
       [
-      {keys.map((k, i) => (
+      {sorted.map((k, i) => (
         <span key={k}>
           {i > 0 && ", "}
           <a href={`#src-${traitId}-${k}`}>{order.get(k)}</a>

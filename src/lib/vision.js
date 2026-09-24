@@ -32,6 +32,13 @@ export function getVision() {
   return visionPromise;
 }
 
+// Start the ~32 MB download as soon as someone shows intent (hovering,
+// focusing or tapping the upload area), so the models are usually ready by
+// the time they've picked a photo. Errors are left for getVision() to report.
+export function preloadVision() {
+  getVision().catch(() => {});
+}
+
 async function createVision() {
   const fileset = await FilesetResolver.forVisionTasks(WASM_BASE);
   // CPU delegate: single photos don't need GPU speed, and CPU gives the same

@@ -1,9 +1,15 @@
+import Icon from "./Icon";
+
 // The collapsible "How it works" section shared by color and shape cards:
 // mechanism, key genes (if any), myths, limitations and numbered sources.
 export default function GeneticsDetails({ content, order, cite }) {
   return (
-    <details className="trait__more">
-      <summary>How it works: the genetics</summary>
+    <details className="more">
+      <summary>
+        <Icon name="book" size={18} />
+        How it works: the genetics
+        <Icon name="chevron" size={18} className="more__chevron" />
+      </summary>
       {content.mechanism.map((m) => (
         <p key={m.text}>
           {m.text}

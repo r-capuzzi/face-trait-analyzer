@@ -75,6 +75,19 @@ export default function PhotoOverlay({ image, result, layers }) {
       line(mouth, "#ff9f1a");
       line(lips, "#5dff7a");
     }
+    if (layers.shape && traits.brows?.regions) {
+      // eyebrows: outline, the pixels read as hair, and the between-brows gap
+      const { brows, gap, gapHair } = traits.brows.regions;
+      ctx.lineWidth = lw;
+      for (const b of brows) {
+        dot(b.hair, "rgba(160, 90, 255, 0.55)");
+        ctx.strokeStyle = "#b07cff";
+        strokePolygon(ctx, b.outline);
+      }
+      dot(gapHair, "rgba(255, 60, 60, 0.7)");
+      ctx.strokeStyle = "#ff6b6b";
+      strokePolygon(ctx, gap);
+    }
   }, [image, result, layers]);
 
   return <canvas ref={canvasRef} className="photo" aria-label="Your photo with measurement overlay" />;

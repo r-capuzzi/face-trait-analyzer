@@ -17,6 +17,7 @@ vi.mock("./lib/imageLoad", async (importOriginal) => ({
 vi.mock("./lib/vision", async (importOriginal) => ({
   ...(await importOriginal()),
   getVision: vi.fn(),
+  preloadVision: vi.fn(), // hovering the upload area must not start real MediaPipe in jsdom
 }));
 
 const photo = new File(["x"], "me.jpg", { type: "image/jpeg" });
@@ -52,7 +53,7 @@ test("a blue-eyed photo is measured and explained as blue", async () => {
   mockPipeline({ faces: [{ points: blueFace.points, blendshapes: {}, matrix: null }] });
   await upload();
   const card = await screen.findByRole("article", { name: "Eye color" });
-  expect(within(card).getByText(/Measured:/)).toHaveTextContent("Blue / gray");
+  expect(within(card).getByText("Blue / gray", { selector: ".result__value" })).toBeInTheDocument();
   expect(within(card).getByText(/two copies of the "blue" version/)).toBeInTheDocument();
 });
 
@@ -75,7 +76,7 @@ test("hair and skin cards show their measurements; unmeasurable eyes say why", a
   await upload();
 
   const hair = await screen.findByRole("article", { name: "Hair color" });
-  expect(within(hair).getByText(/Measured:/)).toHaveTextContent("Brown");
+  expect(within(hair).getByText(/Brown/, { selector: ".result__value" })).toBeInTheDocument();
   // photo-measured hair is never high confidence (Vaughn 2009); this flat
   // synthetic image also trips the blur check, so it lands lower still
   expect(within(hair).getByText(/^(High|Medium|Low) confidence$/)).not.toHaveTextContent("High");
@@ -116,6 +117,26 @@ test("the face-shape section shows proportions, the canon comparison and express
   expect(within(nose).getByText(/flares the nose wings/)).toBeInTheDocument();
   const eyes = screen.getByRole("article", { name: "Eye shape" });
   expect(within(eyes).queryByText(/smiling/)).not.toBeInTheDocument();
+  // this fixture has no skin mask, so the brows can't be measured - and the card says why
+  const brows = screen.getByRole("article", { name: "Eyebrows" });
+  expect(within(brows).getByText(/aren't clearly visible/)).toBeInTheDocument();
+  expect(within(brows).queryByText("Unibrow")).not.toBeInTheDocument();
+});
+
+test("self-reported traits say they don't use the photo, and explain whatever you pick", async () => {
+  mockPipeline({ faces: [{ points: blueFace.points, blendshapes: {}, matrix: null }] });
+  const user = await upload();
+  const texture = await screen.findByRole("article", { name: "Hair texture" });
+  expect(within(texture).getByText(/can't reliably measure curl/)).toBeInTheDocument();
+  // nothing measured -> no confidence meter, and no explanation until you pick
+  expect(within(texture).queryByText(/confidence$/)).not.toBeInTheDocument();
+  expect(within(texture).queryByRole("heading", { level: 3 })).not.toBeInTheDocument();
+  await user.selectOptions(within(texture).getByRole("combobox"), "curly");
+  expect(within(texture).getByRole("heading", { level: 3 })).toHaveTextContent("Curly");
+
+  const freckles = screen.getByRole("article", { name: "Freckles" });
+  await user.selectOptions(within(freckles).getByRole("combobox"), "many");
+  expect(within(freckles).getByText(/MC1R, the gene best known for red hair/)).toBeInTheDocument();
 });
 
 test("a photo with no face shows a helpful error instead of results", async () => {

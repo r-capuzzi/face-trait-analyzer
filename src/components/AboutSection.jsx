@@ -1,3 +1,5 @@
+import Icon from "./Icon";
+
 // What the tool does and doesn't do, where the photo goes (nowhere), and how
 // to read the confidence labels.
 export default function AboutSection() {
@@ -5,28 +7,42 @@ export default function AboutSection() {
     <footer className="about">
       <h2>About this tool</h2>
       <div className="about__grid">
-        <section>
+        <section className="about__item">
+          <span className="about__icon">
+            <Icon name="book" size={22} />
+          </span>
           <h3>What it is</h3>
           <p>
-            An educational explainer. It measures the color of your eyes, hair and skin in a photo and
-            explains the genetics of each trait, with sources. It is <strong>not a genetic test</strong>:
-            a photo can't reveal your genotype, and the explanations say how much (or how little) the
+            An educational explainer. It measures the color and shape of facial traits in a photo and
+            explains the genetics of each, with sources. It is <strong>not a genetic test</strong>: a
+            photo can&apos;t reveal your genotype, and the explanations say how much (or how little) the
             science can infer.
           </p>
           <p>
             It treats each trait on its own and <strong>never guesses ancestry, ethnicity or race</strong>.
-            Pigmentation varies continuously and doesn't sort people into groups.
+            These traits vary continuously and don&apos;t sort people into groups.
           </p>
         </section>
-        <section>
+        <section className="about__item">
+          <span className="about__icon">
+            <Icon name="shield" size={22} />
+          </span>
           <h3>Your photo stays on your device</h3>
           <p>
             All analysis runs in this browser tab. The only downloads are the face-detection models
             (from Google&apos;s MediaPipe) and their runtime (from jsDelivr); your photo is never uploaded,
             stored or sent anywhere. Reloading the page clears it.
           </p>
+          <p>
+            This isn&apos;t just a promise: the site&apos;s security policy tells your browser to block
+            every connection except to those two sources, so even a bug couldn&apos;t send your photo
+            anywhere.
+          </p>
         </section>
-        <section>
+        <section className="about__item">
+          <span className="about__icon">
+            <Icon name="sun" size={22} />
+          </span>
           <h3>Reading the results</h3>
           <p>
             <strong>Confidence</strong> starts from how clearly the measurement falls inside a category and
@@ -41,6 +57,10 @@ export default function AboutSection() {
           </p>
         </section>
       </div>
+      <p className="about__credits">
+        Face models: MediaPipe (Apache 2.0). Monk Skin Tone Scale: Dr. Ellis Monk &amp; Google (CC BY 4.0).
+        Typefaces: Fraunces and Inter (SIL Open Font License).
+      </p>
     </footer>
   );
 }

@@ -14,6 +14,7 @@ const noseShape = {
       describe: (v) => `Your nose (at the widest point of the nose wings) is ${v.toFixed(2)} times the gap between your eyes.`,
       canon: {
         value: 1,
+        gauge: { min: 0.6, max: 1.8 }, // display range only, not a norm
         text: "The classical art \"canon\" says these should be equal. In a study of 153 young adults, that held for only 40%.",
         cite: ["farkas1985"],
       },
@@ -25,6 +26,7 @@ const noseShape = {
       describe: (v) => `Your nose spans about ${Math.round(v * 100)}% of your face's width.`,
       canon: {
         value: 0.25,
+        gauge: { min: 0.15, max: 0.45 },
         text: "The canon says a quarter of the face's width. That held for 37% of the same young adults.",
         cite: ["farkas1985"],
       },

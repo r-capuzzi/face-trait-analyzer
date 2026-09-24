@@ -1,34 +1,80 @@
+/* Self-hosted fonts (bundled by Vite, served from our own origin - no
+   third-party font request, so the CSP stays 'self'). */
+@import "@fontsource-variable/fraunces/opsz.css";
+@import "@fontsource-variable/inter/index.css";
+
 :root {
-  --bg: #f6f5f2;
-  --surface: #ffffff;
-  --text: #1c1d21;
-  --muted: #5d6069;
-  --border: #dedcd6;
-  --accent: #2f6f5a;
+  /* paper & ink */
+  --bg: #f4efe7;
+  --surface: #fffdf9;
+  --surface-2: #f6f0e7;
+  --text: #1d1a17;
+  --muted: #655d55;
+  --border: #e5dccf;
+  --border-strong: #d4c8b8;
+
+  /* brand + per-trait accents (each checked >= 4.5:1 as text on --surface) */
+  --accent: #1e6b5f;
+  --accent-strong: #17574d;
   --accent-contrast: #ffffff;
-  --warn-bg: #fff4d6;
-  --warn-text: #6b4e00;
-  --error-bg: #fde7e7;
+  --eye: #2b6690;
+  --hair: #8f5423;
+  --skin: #a6405f;
+  --shape: #54509f;
+  --brow: #6f45a6;
+
+  --warn-bg: #fbf0d4;
+  --warn-text: #6a4b00;
+  --error-bg: #fbe5e3;
   --error-text: #8a1c1c;
-  --radius: 12px;
+  --ok-bg: #e1f0ea;
+  --ok-text: #17574d;
+
+  --radius: 18px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 2px rgb(40 30 20 / 5%), 0 10px 30px -14px rgb(40 30 20 / 22%);
+  --shadow-lift: 0 2px 4px rgb(40 30 20 / 6%), 0 18px 40px -16px rgb(40 30 20 / 30%);
+
+  --font-body: "Inter Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+
   color-scheme: light;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.5;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f1115;
-    --surface: #181b21;
-    --text: #e8e9ec;
-    --muted: #a1a5ae;
-    --border: #2c3038;
-    --accent: #6cc3a0;
-    --accent-contrast: #0f1115;
-    --warn-bg: #3a2f10;
-    --warn-text: #f3d98b;
-    --error-bg: #3d1717;
-    --error-text: #f5b1b1;
+    --bg: #11100e;
+    --surface: #1a1815;
+    --surface-2: #221f1b;
+    --text: #f1ebe2;
+    --muted: #aaa196;
+    --border: #2e2a25;
+    --border-strong: #3d3831;
+
+    --accent: #5fc4ae;
+    --accent-strong: #7fd6c3;
+    --accent-contrast: #0e1412;
+    --eye: #7fb6e0;
+    --hair: #e0a468;
+    --skin: #ec8fae;
+    --shape: #aaa5f0;
+    --brow: #c3a0f0;
+
+    --warn-bg: #352a0e;
+    --warn-text: #f1d58a;
+    --error-bg: #3a1716;
+    --error-text: #f6b3ae;
+    --ok-bg: #16302a;
+    --ok-text: #8fe0cd;
+
+    --shadow: 0 1px 2px rgb(0 0 0 / 40%), 0 12px 32px -16px rgb(0 0 0 / 70%);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 45%), 0 20px 44px -18px rgb(0 0 0 / 80%);
     color-scheme: dark;
   }
 }
@@ -37,8 +83,48 @@
   box-sizing: border-box;
 }
 
+html {
+  background: var(--bg);
+}
+
 body {
   margin: 0;
-  background: var(--bg);
+  min-height: 100vh;
+  background:
+    radial-gradient(1200px 520px at 12% -8%, color-mix(in srgb, var(--eye) 13%, transparent), transparent 70%),
+    radial-gradient(900px 480px at 92% 0%, color-mix(in srgb, var(--skin) 10%, transparent), transparent 70%),
+    var(--bg);
+  background-repeat: no-repeat;
   color: var(--text);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+:focus-visible {
+  outline: 2.5px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

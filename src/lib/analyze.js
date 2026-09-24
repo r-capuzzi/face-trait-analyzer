@@ -6,6 +6,7 @@ import { assessQuality } from "./quality";
 import { faceFrame } from "./regions";
 import { classifyEyeColor, measureEyeColor } from "./traits/eyeColor";
 import { measureFaceShape } from "./traits/faceShape";
+import { measureEyebrows } from "./traits/eyebrows";
 import { classifyHairColor, measureHairColor } from "./traits/hairColor";
 import { classifySkinTone, measureSkinTone } from "./traits/skinTone";
 
@@ -46,6 +47,10 @@ const measureThenClassify = (measure, classify) => () => {
   return m.status === "ok" ? { ...m, ...classify(m) } : m;
 };
 
+// traits with categories (and so a confidence level); shape and brows
+// carry per-feature photo notes instead
+const CLASSIFIED = ["eye", "hair", "skin"];
+
 export function analyze(image, detection) {
   const face = pickPrimaryFace(detection.faces);
   const { imageData } = image;
@@ -68,10 +73,11 @@ export function analyze(image, detection) {
   // Shape carries its own per-feature photo notes (expression, head turn)
   // instead of a confidence level: it has no categories to be unsure between.
   traits.shape = isolated(() => measureFaceShape(face));
+  traits.brows = isolated(() => measureEyebrows(imageData, mask, face.points));
 
   const quality = isolated(() => assessQuality({ imageData, face, traits }), { issues: [] });
   for (const [name, t] of Object.entries(traits)) {
-    if (t.status === "ok" && name !== "shape") {
+    if (t.status === "ok" && CLASSIFIED.includes(name)) {
       t.confidence = combineConfidence({ trait: name, margin: t.margin, issues: quality.issues });
     }
   }

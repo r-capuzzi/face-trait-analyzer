@@ -21,7 +21,7 @@ export default function PigmentBar({ pie, eyes, heterochromiaNote }) {
         Pixel index {pie.toFixed(2)}: {Math.round(((1 + pie) / 2) * 100)}% of the sampled iris
         pixels read as unpigmented.
       </p>
-      {heterochromiaNote && <p className="warning">{heterochromiaNote}</p>}
+      {heterochromiaNote && <p className="callout callout--warn">{heterochromiaNote}</p>}
     </div>
   );
 }

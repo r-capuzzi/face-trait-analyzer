@@ -32,8 +32,19 @@ Eye, nose and lip proportions come straight from landmark geometry ([`faceShape.
 | Eyes | openness (height ÷ width), corner tilt (degrees), spacing (inner-corner gap ÷ eye width) |
 | Nose | width at the nose wings ÷ eye gap, and ÷ face width |
 | Lips | mouth width ÷ nose width, lower ÷ upper lip height, lip height ÷ mouth width |
+| Eyebrows | unibrow (share of the gap between the brows that reads as hair), thickness (hair area ÷ brow length), fill |
+
+The segmentation model labels eyebrows as face skin, so brow hair ([`eyebrows.js`](src/lib/traits/eyebrows.js)) is found by comparing each pixel with a strip of forehead skin just above the brow. The same rule then works on any skin tone, which a test checks. Very light brows, where there isn't enough contrast, aren't measured, and a brow half-hidden by bangs is left out rather than averaged in. The genetics come from a study that scored brows in men only, because most women had shaped theirs (Adhikari 2016: FOXL2 for thickness, PAX3 for the unibrow), and the card says so.
 
 There are no "normal ranges" or wide/narrow labels, because published facial norms are split by ethnic group. The only reference points are the neoclassical art canons, shown as a myth: Farkas (1985) found even the best-fitting canon held for only 40% of real faces. Expressions are flagged per card using MediaPipe's expression scores. Smiling flags lips and nose, since the nose base widens in 92% of smiles (Beiraghi-Toosi 2016), and squinting flags the eyes. Nose width also comes with the selfie caveat: at about 30 cm the nose base looks about 30% wider (Ward 2018).
+
+### What a photo can't measure
+
+Hair texture and freckles don't show up reliably in photos: styling and lighting change how curl looks, and resolution, makeup and filters hide freckles. These cards ask you to pick yours, then explain the genetics (TCHH, WNT10A, OFCC1 and PRSS53 for hair shape; MC1R, IRF4 and BNC2 for freckling). Nothing in this section comes from the photo.
+
+### Privacy, enforced by the browser
+
+A Content Security Policy ([`csp.js`](csp.js), mirrored in `vercel.json` and checked by a test) allows network requests only to the page itself, jsDelivr (the MediaPipe runtime) and Google's model bucket. Anything else is blocked by the browser before it leaves the tab. This was verified under `npm run preview`: a test upload to another site was stopped with a `connect-src` violation while the analysis ran normally. The Fraunces and Inter fonts are bundled rather than loaded from Google Fonts, so the policy needs no exceptions for them.
 
 ### Confidence
 
@@ -66,6 +77,7 @@ npm install
 npm run dev      # http://localhost:5173
 npm test         # Vitest: color math, trait measurement on synthetic images, UI flows
 npm run build
+npm run preview  # production build with the real CSP, http://localhost:4173
 ```
 
 Stack: React 19, Vite 8, Vitest 5, `@mediapipe/tasks-vision` 1.0.1 (models pinned by version).
