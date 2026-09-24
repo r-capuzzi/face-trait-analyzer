@@ -50,6 +50,11 @@ const noseShape = {
       cite: ["noback2011"],
     },
     {
+      evidence: "leading",
+      text: "Neanderthals faced the same problem. Airflow simulations suggest both Neanderthal and modern human noses condition cold, dry air better than their common ancestor's did, and that Neanderthal noses could move considerably more air, fitting high energy needs.",
+      cite: ["wroe2018"],
+    },
+    {
       evidence: "strong",
       text: "Extreme cold is one of the few places where skull shape clearly departed from random drift, and the nose was among the features affected.",
       cite: ["roseman2004"],

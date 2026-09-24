@@ -42,6 +42,11 @@ const skinTone = {
       cite: ["norton2007", "jablonski2010"],
     },
     {
+      evidence: "hypothesis",
+      text: "East Asia has its own light-skin story: in a study in Japan, a common MC1R variant (carried on about 79% of chromosomes there) was linked to lighter skin, which the authors read as a sign that lighter skin was also favored by selection in East Asia.",
+      cite: ["yamaguchi2012"],
+    },
+    {
       evidence: "strong",
       text: "In Europe it happened recently. Ancient DNA shows the main light-skin variant of SLC24A5 arrived mostly with the first farmers migrating from Anatolia, while a light-skin variant of SLC45A2, far rarer in ancient Europeans than today, rose under natural selection. Selection favoring lighter skin, hair and eyes was still strong in the last 5,000 years.",
       cite: ["mathieson2015", "wilde2014"],
@@ -146,7 +151,7 @@ const skinTone = {
   ],
 
   sources: {
-    ...evolutionSources("jablonski2010", "norton2007", "mathieson2015", "wilde2014", "jablonski2000", "dannemann2017"),
+    ...evolutionSources("jablonski2010", "norton2007", "mathieson2015", "wilde2014", "jablonski2000", "dannemann2017", "yamaguchi2012"),
     lamason2005: {
       citation:
         "Lamason RL et al. (2005). SLC24A5, a putative cation exchanger, affects pigmentation in zebrafish and humans. Science 310:1782–1786.",

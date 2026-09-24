@@ -43,13 +43,23 @@ const eyeShape = {
       cite: ["kobayashi2001", "pereagarcia2025"],
     },
     {
+      evidence: "leading",
+      text: "Eye size tracks daylight: people living farther from the equator have larger eye sockets, an index of eyeball size, while sharpness of vision in daylight is the same across latitudes. The researchers argue larger eyes evolved to make up for dimmer light and shorter winter days.",
+      cite: ["pearce2012"],
+    },
+    {
+      evidence: "strong",
+      text: "Neanderthals had larger eye sockets than the modern humans of their time.",
+      cite: ["pearce2013"],
+    },
+    {
       evidence: "strong",
       text: "The small pink fold in the inner corner of each eye, the plica semilunaris, is counted among the vestigial structures of the human head: leftovers that have lost most or all of their original role.",
       cite: ["dhawan2023"],
     },
     {
       evidence: "unknown",
-      text: "Differences in eye shape between individuals have no established evolutionary explanation.",
+      text: "Differences in eye shape between individuals, as opposed to eye size, have no established evolutionary explanation.",
       cite: [],
     },
   ],

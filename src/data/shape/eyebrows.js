@@ -47,6 +47,11 @@ const eyebrows = {
       cite: ["godinho2018"],
     },
     {
+      evidence: "hypothesis",
+      text: "Brow ridges kept shrinking within our own species: since the Middle Pleistocene, the average brow ridge has become less prominent and the upper face shorter. One proposal links this to lower testosterone reactivity and rising social tolerance, which would have made life in larger, more cooperative groups possible.",
+      cite: ["cieri2014"],
+    },
+    {
       evidence: "leading",
       text: "Eyebrows matter for recognizing people: in one experiment, removing the eyebrows from familiar faces hurt recognition more than removing the eyes.",
       cite: ["sadr2003"],

@@ -58,6 +58,11 @@ const facialHair = {
       text: "The gene most strongly linked to beard thickness, EDAR, is also one whose 370A variant spread through strong natural selection, probably for its effects on other organs rather than on beards.",
       cite: ["adhikari2016hair", "kamberov2013"],
     },
+    {
+      evidence: "unknown",
+      text: "Beards do block some sunburning UV: in one measurement study, facial hair cut UV exposure to about a third, though the protection was modest and weakest when the sun was lower in the sky. Whether that ever mattered for beard evolution hasn't been tested.",
+      cite: ["parisi2012"],
+    },
   ],
 
   mechanism: [

@@ -32,6 +32,11 @@ const hairline = {
       text: "Male-pattern baldness is common and highly heritable, yet no evolutionary explanation for it has been established.",
       cite: ["heilmann2017"],
     },
+    {
+      evidence: "hypothesis",
+      text: "Baldness risk may have spread as a passenger. In Europeans, the main baldness-risk version of the androgen receptor gene appears to have been driven to high frequency by natural selection, probably alongside a nearby variant in EDA2R that was itself being favored.",
+      cite: ["hillmer2009"],
+    },
   ],
 
   mechanism: [

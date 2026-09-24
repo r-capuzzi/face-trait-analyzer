@@ -31,6 +31,11 @@ const earlobes = {
       text: "One earlobe gene did evolve under selection, probably for something else. EDAR's 370A variant, linked to lobe size and attachment, spread through strong natural selection; the leading ideas for why involve sweat glands or milk ducts, so ear shape likely changed along the way. One gene shaping several traits (pleiotropy) is common in evolution.",
       cite: ["adhikari2015", "kamberov2013", "hlusko2018"],
     },
+    {
+      evidence: "leading",
+      text: "Ear shape shares genes with other traits that grow from the embryo's outer layer of tissue, including face shape, the unibrow and male-pattern baldness, according to a study of 136 ear measurements in 14,921 people. It's the same pattern as EDAR above: one gene, several traits.",
+      cite: ["li2023"],
+    },
   ],
 
   mechanism: [
@@ -109,7 +114,7 @@ const earlobes = {
   ],
 
   sources: {
-    ...evolutionSources("kamberov2013", "hlusko2018", "strauss2020", "dhawan2023"),
+    ...evolutionSources("kamberov2013", "hlusko2018", "strauss2020", "dhawan2023", "li2023"),
     shaffer2017: {
       citation:
         "Shaffer JR et al. (2017). Multiethnic GWAS reveals polygenic architecture of earlobe attachment. Am J Hum Genet 101:913–924.",

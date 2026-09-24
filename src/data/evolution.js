@@ -154,6 +154,46 @@ export const EVOLUTION_SOURCES = {
       "Dhawan SS, Yedavalli V, Massoud TF (2023). Atavistic and vestigial anatomical structures in the head, neck, and spine: an overview. Anat Sci Int 98:370–390.",
     doi: "10.1007/s12565-022-00701-7",
   },
+  hillmer2009: {
+    citation:
+      "Hillmer AM et al. (2009). Recent positive selection of a human androgen receptor/ectodysplasin A2 receptor haplotype and its relationship to male pattern baldness. Hum Genet 126:255–264.",
+    doi: "10.1007/s00439-009-0668-z",
+  },
+  parisi2012: {
+    citation:
+      "Parisi AV et al. (2012). Dosimetric investigation of the solar erythemal UV radiation protection provided by beards and moustaches. Radiat Prot Dosimetry 150:278–282.",
+    doi: "10.1093/rpd/ncr418",
+  },
+  yamaguchi2012: {
+    citation:
+      "Yamaguchi K et al. (2012). Association of melanocortin 1 receptor gene (MC1R) polymorphisms with skin reflectance and freckles in Japanese. J Hum Genet 57:700–708.",
+    doi: "10.1038/jhg.2012.96",
+  },
+  pearce2012: {
+    citation:
+      "Pearce E, Dunbar R (2012). Latitudinal variation in light levels drives human visual system size. Biol Lett 8:90–93.",
+    doi: "10.1098/rsbl.2011.0570",
+  },
+  pearce2013: {
+    citation:
+      "Pearce E, Stringer C, Dunbar RIM (2013). New insights into differences in brain organization between Neanderthals and anatomically modern humans. Proc R Soc B 280:20130168.",
+    doi: "10.1098/rspb.2013.0168",
+  },
+  wroe2018: {
+    citation:
+      "Wroe S et al. (2018). Computer simulations show that Neanderthal facial morphology represents adaptation to cold and high energy demands, but not heavy biting. Proc R Soc B 285:20180085.",
+    doi: "10.1098/rspb.2018.0085",
+  },
+  cieri2014: {
+    citation:
+      "Cieri RL et al. (2014). Craniofacial feminization, social tolerance, and the origins of behavioral modernity. Curr Anthropol 55:419–443.",
+    doi: "10.1086/677209",
+  },
+  li2023: {
+    citation:
+      "Li Y et al. (2023). Combined genome-wide association study of 136 quantitative ear morphology traits in multiple populations reveal 8 novel loci. PLoS Genet 19:e1010786.",
+    doi: "10.1371/journal.pgen.1010786",
+  },
 };
 
 // A card's own subset, so its numbered source list holds only what it cites.

@@ -102,7 +102,7 @@ const freckles = {
   ],
 
   sources: {
-    ...evolutionSources("harding2000", "dannemann2017"),
+    ...evolutionSources("harding2000", "dannemann2017", "yamaguchi2012"),
     eriksson2010: {
       citation:
         "Eriksson N et al. (2010). Web-based, participant-driven studies yield novel genetic associations for common traits. PLoS Genet 6:e1000993.",
@@ -112,11 +112,6 @@ const freckles = {
       citation:
         "Praetorius C et al. (2013). A polymorphism in IRF4 affects human pigmentation through a tyrosinase-dependent MITF/TFAP2A pathway. Cell 155:1022–1033.",
       doi: "10.1016/j.cell.2013.10.022",
-    },
-    yamaguchi2012: {
-      citation:
-        "Yamaguchi K et al. (2012). Association of melanocortin 1 receptor gene (MC1R) polymorphisms with skin reflectance and freckles in Japanese. J Hum Genet 57:700–708.",
-      doi: "10.1038/jhg.2012.96",
     },
   },
 };
