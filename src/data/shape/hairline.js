@@ -24,8 +24,8 @@ const hairline = {
   history: [
     {
       evidence: "strong",
-      text: "A vertical forehead is new in human evolution: our Middle Pleistocene relatives had heavy brow ridges instead. (For why that may have mattered, see Eyebrows.)",
-      cite: ["godinho2018"],
+      text: "Modern humans have a short face tucked beneath a large, rounded braincase, with a vertical forehead where our Middle Pleistocene relatives had heavy brow ridges. (For why losing the ridges may have mattered, see Eyebrows.)",
+      cite: ["lacruz2019", "godinho2018"],
     },
     {
       evidence: "unknown",

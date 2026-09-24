@@ -27,6 +27,11 @@ const dimples = {
       cite: ["pessa1998"],
     },
     {
+      evidence: "strong",
+      text: "The smile muscle is far older than our species: chimpanzees have nearly the same facial-expression muscles as humans, including a zygomaticus major with two layers.",
+      cite: ["burrows2006"],
+    },
+    {
       evidence: "unknown",
       text: "Chin dimples sit on a feature that is itself a puzzle: the chin is unique to modern humans, and a century of explanations (speech, chewing, mate choice, or a side effect of the face shrinking back) hasn't produced a consensus.",
       cite: ["pampush2016"],
@@ -113,7 +118,7 @@ const dimples = {
   ],
 
   sources: {
-    ...evolutionSources("pampush2016"),
+    ...evolutionSources("pampush2016", "burrows2006"),
     pessa1998: {
       citation:
         "Pessa JE et al. (1998). Double or bifid zygomaticus major muscle: anatomy, incidence, and clinical correlation. Clin Anat 11:310–313.",

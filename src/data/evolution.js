@@ -104,6 +104,56 @@ export const EVOLUTION_SOURCES = {
       "Rotenstreich L et al. (2025). Patterns of interspecific variation in labial microarchitecture among anthropoid primates and the evolution of the hominin lips. Anat Rec (online ahead of print).",
     doi: "10.1002/ar.70103",
   },
+  jablonski2000: {
+    citation:
+      "Jablonski NG, Chaplin G (2000). The evolution of human skin coloration. J Hum Evol 39:57–106.",
+    doi: "10.1006/jhev.2000.0403",
+  },
+  dannemann2017: {
+    citation:
+      "Dannemann M, Kelso J (2017). The contribution of Neanderthals to phenotypic variation in modern humans. Am J Hum Genet 101:578–589.",
+    doi: "10.1016/j.ajhg.2017.09.010",
+  },
+  lalueza2007: {
+    citation:
+      "Lalueza-Fox C et al. (2007). A melanocortin 1 receptor allele suggests varying pigmentation among Neanderthals. Science 318:1453–1455.",
+    doi: "10.1126/science.1147417",
+  },
+  olalde2014: {
+    citation:
+      "Olalde I et al. (2014). Derived immune and ancestral pigmentation alleles in a 7,000-year-old Mesolithic European. Nature 507:225–228.",
+    doi: "10.1038/nature12960",
+  },
+  burrows2006: {
+    citation:
+      "Burrows AM et al. (2006). Muscles of facial expression in the chimpanzee (Pan troglodytes): descriptive, comparative and phylogenetic contexts. J Anat 208:153–167.",
+    doi: "10.1111/j.1469-7580.2006.00523.x",
+  },
+  franciscus1988: {
+    citation:
+      "Franciscus RG, Trinkaus E (1988). Nasal morphology and the emergence of Homo erectus. Am J Phys Anthropol 75:517–527.",
+    doi: "10.1002/ajpa.1330750409",
+  },
+  zink2016: {
+    citation:
+      "Zink KD, Lieberman DE (2016). Impact of meat and Lower Palaeolithic food processing techniques on chewing in humans. Nature 531:500–503.",
+    doi: "10.1038/nature16990",
+  },
+  lacruz2019: {
+    citation:
+      "Lacruz RS et al. (2019). The evolutionary history of the human face. Nat Ecol Evol 3:726–736.",
+    doi: "10.1038/s41559-019-0865-7",
+  },
+  strauss2020: {
+    citation:
+      "Strauss DJ et al. (2020). Vestigial auriculomotor activity indicates the direction of auditory attention in humans. eLife 9:e54536.",
+    doi: "10.7554/eLife.54536",
+  },
+  dhawan2023: {
+    citation:
+      "Dhawan SS, Yedavalli V, Massoud TF (2023). Atavistic and vestigial anatomical structures in the head, neck, and spine: an overview. Anat Sci Int 98:370–390.",
+    doi: "10.1007/s12565-022-00701-7",
+  },
 };
 
 // A card's own subset, so its numbered source list holds only what it cites.

@@ -22,6 +22,11 @@ const earlobes = {
       cite: [],
     },
     {
+      evidence: "leading",
+      text: "Your ears still try to turn toward sounds. Humans can't point their ears the way cats and dogs do, and the small muscles around the ear are counted as vestigial, yet they fire more strongly on the side a sound comes from. The researchers see this as a \"neural fossil\" of an ear-turning system from ancestors about 25 million years ago.",
+      cite: ["strauss2020", "dhawan2023"],
+    },
+    {
       evidence: "hypothesis",
       text: "One earlobe gene did evolve under selection, probably for something else. EDAR's 370A variant, linked to lobe size and attachment, spread through strong natural selection; the leading ideas for why involve sweat glands or milk ducts, so ear shape likely changed along the way. One gene shaping several traits (pleiotropy) is common in evolution.",
       cite: ["adhikari2015", "kamberov2013", "hlusko2018"],
@@ -104,7 +109,7 @@ const earlobes = {
   ],
 
   sources: {
-    ...evolutionSources("kamberov2013", "hlusko2018"),
+    ...evolutionSources("kamberov2013", "hlusko2018", "strauss2020", "dhawan2023"),
     shaffer2017: {
       citation:
         "Shaffer JR et al. (2017). Multiethnic GWAS reveals polygenic architecture of earlobe attachment. Am J Hum Genet 101:913–924.",

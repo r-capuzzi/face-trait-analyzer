@@ -18,6 +18,16 @@ const hairColor = {
       cite: ["harding2000"],
     },
     {
+      evidence: "leading",
+      text: "Some Neanderthals probably had red hair or pale skin too, by their own route: two Neanderthal remains carried an MC1R variant not found in about 3,700 modern humans, and it weakens the gene enough to change hair or skin pigment in lab tests. It arose independently of the modern human red-hair variants.",
+      cite: ["lalueza2007"],
+    },
+    {
+      evidence: "strong",
+      text: "Neanderthal DNA still affects hair color today: several stretches inherited by present-day Europeans push hair color both lighter and darker.",
+      cite: ["dannemann2017"],
+    },
+    {
       evidence: "strong",
       text: "Lighter hair was actively favored in Europe: ancient DNA shows strong selection on hair-pigmentation variants over the last 5,000 years, for reasons that aren't known.",
       cite: ["wilde2014"],
@@ -137,7 +147,7 @@ const hairColor = {
   ],
 
   sources: {
-    ...evolutionSources("harding2000", "wilde2014", "kenny2012"),
+    ...evolutionSources("harding2000", "wilde2014", "kenny2012", "lalueza2007", "dannemann2017"),
     valverde1995: {
       citation:
         "Valverde P et al. (1995). Variants of the melanocyte-stimulating hormone receptor gene are associated with red hair and fair skin in humans. Nat Genet 11:328–330.",

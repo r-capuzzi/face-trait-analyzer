@@ -45,6 +45,16 @@ const faceProportions = {
 
   history: [
     {
+      evidence: "leading",
+      text: "The modern human face is short and tucked back beneath a large, rounded braincase, unlike our closest relatives'. A 2019 review of 6 million years of fossils concludes it was shaped by a mix of chewing mechanics, other body needs such as breathing, and social signaling.",
+      cite: ["lacruz2019"],
+    },
+    {
+      evidence: "leading",
+      text: "Faces and teeth began shrinking long before farming. Homo erectus had smaller teeth and chewing muscles than earlier hominins despite needing more energy; experiments show that eating meat and simply slicing or pounding food cut the chewing needed substantially, which may be what made that possible.",
+      cite: ["zink2016"],
+    },
+    {
       evidence: "strong",
       text: "Most differences in skull and face shape between populations match random drift, the chance changes that build up as populations separate, rather than natural selection. A population living in extreme cold was the exception: its skull breadth and nose appear to have adapted.",
       cite: ["roseman2004"],

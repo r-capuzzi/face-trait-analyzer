@@ -18,7 +18,7 @@ export const FACE_MECHANISM = [
 ];
 
 export const FACE_SOURCES = {
-  ...evolutionSources("roseman2004", "cramon2011", "pampush2016", "godinho2018", "kobayashi2001", "pereagarcia2025", "sadr2003", "noback2011", "rotenstreich2025", "dixson2012", "kamberov2013"),
+  ...evolutionSources("roseman2004", "cramon2011", "pampush2016", "godinho2018", "kobayashi2001", "pereagarcia2025", "sadr2003", "noback2011", "rotenstreich2025", "dixson2012", "kamberov2013", "burrows2006", "lacruz2019", "zink2016", "franciscus1988", "dhawan2023"),
   claes2018: {
     citation:
       "Claes P et al. (2018). Genome-wide mapping of global-to-local genetic effects on human facial shape. Nat Genet 50:414–423.",

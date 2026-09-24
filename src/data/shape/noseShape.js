@@ -35,6 +35,11 @@ const noseShape = {
 
   history: [
     {
+      evidence: "hypothesis",
+      text: "A projecting outer nose is unique to humans among living apes, and its skeletal signs appear with Homo erectus about 1.6 million years ago. The study that dated it argued it helped conserve moisture in dry, open landscapes, by adding turbulence and cooling the air we breathe out.",
+      cite: ["franciscus1988"],
+    },
+    {
       evidence: "leading",
       text: "The nose warms and humidifies the air we breathe. Nostril width varies across the world more than random drift alone would predict, and it correlates with temperature and absolute humidity, pointing to adaptation to climate. The researchers call this a simplified explanation of a complex history that may also involve other forces, such as mate choice.",
       cite: ["zaidi2017"],

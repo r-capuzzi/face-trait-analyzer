@@ -20,6 +20,11 @@ const freckles = {
       text: "Freckles probably have no advantage of their own. MC1R, one of the main genes behind them, is held unchanged by strong selection in Africa; outside Africa that constraint relaxed and variants built up as random drift would predict, including the kinds that make freckling more likely.",
       cite: ["harding2000", "eriksson2010"],
     },
+    {
+      evidence: "strong",
+      text: "Part of the story traces to Neanderthals. Two stretches of DNA near BNC2, a gene linked to freckling, entered Europeans from Neanderthals; one Neanderthal version is now carried on more than two-thirds of European chromosomes and is linked to tanning poorly and getting more sunburns in childhood.",
+      cite: ["dannemann2017", "eriksson2010"],
+    },
   ],
 
   mechanism: [
@@ -97,7 +102,7 @@ const freckles = {
   ],
 
   sources: {
-    ...evolutionSources("harding2000"),
+    ...evolutionSources("harding2000", "dannemann2017"),
     eriksson2010: {
       citation:
         "Eriksson N et al. (2010). Web-based, participant-driven studies yield novel genetic associations for common traits. PLoS Genet 6:e1000993.",

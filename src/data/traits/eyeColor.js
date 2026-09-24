@@ -20,6 +20,11 @@ const eyeColor = {
     },
     {
       evidence: "strong",
+      text: "Eye color and skin color changed on different timelines in Europe: the blue-eye variant was already universal among the hunter-gatherers sampled, while a 7,000-year-old hunter-gatherer from Spain still carried the older, darker versions of several skin-pigmentation genes.",
+      cite: ["mathieson2015", "olalde2014"],
+    },
+    {
+      evidence: "strong",
       text: "It spread by natural selection, not by chance alone: ancient DNA shows strong selection favoring lighter eye, hair and skin pigmentation in Europe over the last 5,000 years.",
       cite: ["wilde2014"],
     },
@@ -119,7 +124,7 @@ const eyeColor = {
     "Your two eyes measured quite differently. That can be real heterochromia or just uneven lighting, such as one side of your face nearer a window. Retake the photo facing the light to check. If one eye's color has changed recently, mention it to an eye doctor.",
 
   sources: {
-    ...evolutionSources("mathieson2015", "wilde2014"),
+    ...evolutionSources("mathieson2015", "wilde2014", "olalde2014"),
     eiberg2008: {
       citation:
         "Eiberg H et al. (2008). Blue eye color in humans may be caused by a perfectly associated founder mutation in a regulatory element located within the HERC2 gene inhibiting OCA2 expression. Hum Genet 123:177–187.",

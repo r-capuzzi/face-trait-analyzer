@@ -75,6 +75,12 @@ Every card has a "Why it evolved" section: how the trait came to vary among huma
 - **Blond hair** evolved twice, via KITLG in northern Europe and TYRP1 in the Solomon Islands (Guenther 2014; Kenny 2012). **Red hair** fits relaxed selection on MC1R outside Africa, not an advantage (Harding 2000).
 - **Established but unexplained:** strong selection for lighter eyes and hair in Europe over the last 5,000 years (Wilde 2014), and the EDAR 370A variant behind thicker hair (Kamberov 2013). Why they were favored is still debated.
 - **Contested ideas are labeled as such.** Examples: the "cooperative eye" explanation for the white of the eye (Kobayashi 2001, disputed by Perea-García 2025), beards as a signal between men (Dixson & Vasey 2012), and mobile eyebrows replacing brow ridges (Godinho 2018).
+- **Neanderthals left traces.** Neanderthal DNA in present-day Europeans affects skin tone and hair color in both directions (Dannemann & Kelso 2017). A Neanderthal-derived stretch near the freckle gene BNC2, now carried on more than two-thirds of European chromosomes, is linked to poor tanning. Some Neanderthals evolved their own red-hair variant of MC1R (Lalueza-Fox 2007).
+- **Deep history:**
+  - The projecting nose appeared with *Homo erectus* (Franciscus & Trinkaus 1988).
+  - Meat and simple food processing cut chewing long before farming (Zink & Lieberman 2016).
+  - Chimpanzees share our facial-expression muscles, including the smile muscle behind dimples (Burrows 2006).
+  - Our vestigial ear muscles still fire toward sounds (Strauss 2020).
 - **Some traits have no known purpose.** Earlobes, cheek dimples and the widow's peak are labeled "unknown" rather than given a made-up story. Most face and skull variation between populations fits random drift (Roseman 2004).
 
 The section frames it as the history of our species, never as a reading of the viewer's own ancestry. A test requires every card to have one, with a valid evidence label on every point.

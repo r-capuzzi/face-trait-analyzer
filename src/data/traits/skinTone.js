@@ -48,6 +48,11 @@ const skinTone = {
     },
     {
       evidence: "strong",
+      text: "Neanderthals left a mark too: stretches of Neanderthal DNA carried by present-day Europeans affect skin tone in both directions, lighter and darker, suggesting Neanderthals themselves varied in skin color.",
+      cite: ["dannemann2017"],
+    },
+    {
+      evidence: "strong",
       text: "Dark skin outside Africa is largely the original kind: the dark-pigmentation variants found in South Asian and Australo-Melanesian populations are the same ones found in Africa, inherited from shared ancestors.",
       cite: ["crawford2017"],
     },
@@ -141,7 +146,7 @@ const skinTone = {
   ],
 
   sources: {
-    ...evolutionSources("jablonski2010", "norton2007", "mathieson2015", "wilde2014"),
+    ...evolutionSources("jablonski2010", "norton2007", "mathieson2015", "wilde2014", "jablonski2000", "dannemann2017"),
     lamason2005: {
       citation:
         "Lamason RL et al. (2005). SLC24A5, a putative cation exchanger, affects pigmentation in zebrafish and humans. Science 310:1782–1786.",
@@ -156,10 +161,6 @@ const skinTone = {
       citation:
         "Martin AR et al. (2017). An unexpectedly complex architecture for skin pigmentation in Africans. Cell 171:1340–1353.",
       doi: "10.1016/j.cell.2017.11.015",
-    },
-    jablonski2000: {
-      citation: "Jablonski NG, Chaplin G (2000). The evolution of human skin coloration. J Hum Evol 39:57–106.",
-      doi: "10.1006/jhev.2000.0403",
     },
     chaitanya2018: {
       citation:

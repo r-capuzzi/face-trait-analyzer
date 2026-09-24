@@ -40,6 +40,11 @@ const lipShape = {
 
   history: [
     {
+      evidence: "strong",
+      text: "The muscles that move the lips are old: chimpanzees have nearly the same facial-expression muscles as humans. What sets human lips apart is their fine structure.",
+      cite: ["burrows2006", "rotenstreich2025"],
+    },
+    {
       evidence: "hypothesis",
       text: "Human lips are built differently from other primates': in a study of 15 primate species, only humans had a hook-shaped lip muscle together with fat-rich, low-connective-tissue lips. The authors propose this gives the fine control that speech needs, while noting they have no direct functional evidence.",
       cite: ["rotenstreich2025"],

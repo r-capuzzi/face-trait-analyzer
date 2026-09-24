@@ -44,6 +44,11 @@ const facialHair = {
 
   history: [
     {
+      evidence: "strong",
+      text: "The beard is one of the most visible differences between men and women, and it depends on androgens, hormones such as testosterone.",
+      cite: ["dixson2012"],
+    },
+    {
       evidence: "hypothesis",
       text: "Darwin thought beards evolved because women found them attractive. When tested in two cultures (New Zealand and Samoa), women didn't rate bearded faces as more attractive, but beards made men look older and higher-status, and angry bearded faces looked more aggressive. That fits beards evolving mainly through competition between men.",
       cite: ["dixson2012"],

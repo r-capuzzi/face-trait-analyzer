@@ -16,8 +16,13 @@ const hairTexture = {
 
   history: [
     {
+      evidence: "strong",
+      text: "Our ancestors lost most of their body hair early in the evolution of our genus but kept it on the scalp, leaving humans unusual among mammals: the earliest members of our lineage were probably covered in dark hair, as chimpanzees are.",
+      cite: ["jablonski2000", "lasisi2023"],
+    },
+    {
       evidence: "hypothesis",
-      text: "Scalp hair may be a sunshade. Humans are unusual among mammals in having a nearly naked body but a hairy scalp. In tests with a heated manikin wearing wigs under simulated sunlight, hair cut the sun's heat reaching the scalp, and tightly curled hair did so best, suggesting it could have helped our ancestors stay cool under strong sun.",
+      text: "Scalp hair may be a sunshade. In tests with a heated manikin wearing wigs under simulated sunlight, hair cut the sun's heat reaching the scalp, and tightly curled hair did so best, suggesting it could have helped our ancestors stay cool under strong sun.",
       cite: ["lasisi2023"],
     },
     {
@@ -96,7 +101,7 @@ const hairTexture = {
   ],
 
   sources: {
-    ...evolutionSources("lasisi2023", "kamberov2013", "hlusko2018"),
+    ...evolutionSources("lasisi2023", "kamberov2013", "hlusko2018", "jablonski2000"),
     medland2009: {
       citation:
         "Medland SE et al. (2009). Common variants in the trichohyalin gene are associated with straight hair in Europeans. Am J Hum Genet 85:750–755.",

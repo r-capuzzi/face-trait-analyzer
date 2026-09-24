@@ -43,6 +43,11 @@ const eyeShape = {
       cite: ["kobayashi2001", "pereagarcia2025"],
     },
     {
+      evidence: "strong",
+      text: "The small pink fold in the inner corner of each eye, the plica semilunaris, is counted among the vestigial structures of the human head: leftovers that have lost most or all of their original role.",
+      cite: ["dhawan2023"],
+    },
+    {
       evidence: "unknown",
       text: "Differences in eye shape between individuals have no established evolutionary explanation.",
       cite: [],
