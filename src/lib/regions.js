@@ -115,6 +115,17 @@ export function faceFrame(points) {
   return { right: r, left: l, mid: mean([r, l]), iod, ex, ey };
 }
 
+// Pixel coordinates <-> the face frame (u along the pupils, v down the face).
+export function toFrame(f, p) {
+  const dx = p.x - f.mid.x;
+  const dy = p.y - f.mid.y;
+  return { u: dx * f.ex.x + dy * f.ex.y, v: dx * f.ey.x + dy * f.ey.y };
+}
+
+export function fromFrame(f, { u, v }) {
+  return { x: f.mid.x + u * f.ex.x + v * f.ey.x, y: f.mid.y + u * f.ex.y + v * f.ey.y };
+}
+
 // Skin sample patches as circles, placed by proportion rather than by
 // individual mesh vertices so they don't depend on memorizing indices:
 //  - cheeks: below each pupil, halfway down to mouth-corner level, nudged

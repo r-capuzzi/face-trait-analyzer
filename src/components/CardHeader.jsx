@@ -8,6 +8,8 @@ const STYLE = {
   face: { icon: "face", accent: "shape", kicker: "Shape" },
   eyes: { icon: "eye", accent: "shape", kicker: "Shape" },
   brows: { icon: "brow", accent: "brow", kicker: "Hair" },
+  hairline: { icon: "hair", accent: "hair", kicker: "Hair" },
+  beard: { icon: "beard", accent: "brow", kicker: "Hair" },
   nose: { icon: "nose", accent: "shape", kicker: "Shape" },
   lips: { icon: "lips", accent: "shape", kicker: "Shape" },
   texture: { icon: "hair", accent: "hair", kicker: "You tell us" },

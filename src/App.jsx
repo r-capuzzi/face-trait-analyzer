@@ -20,13 +20,15 @@ import noseShape from "./data/shape/noseShape";
 import lipShape from "./data/shape/lipShape";
 import eyebrows from "./data/shape/eyebrows";
 import faceProportions from "./data/shape/faceProportions";
+import hairline from "./data/shape/hairline";
+import facialHair from "./data/shape/facialHair";
 import hairTexture from "./data/traits/hairTexture";
 import freckles from "./data/traits/freckles";
 import "./App.css";
 
 // Overlay layers; the dots double as a legend for the colors drawn on the photo.
 const LAYERS = {
-  regions: { label: "Sampled pixels", colors: ["#00e5ff", "#ff3cd2", "#ffa000"] },
+  regions: { label: "Sampled pixels", colors: ["#00e5ff", "#ff3cd2", "#ffa000", "#ff5a36"] },
   shape: { label: "Face measurements", colors: ["#ffd400", "#ff4fd8", "#b07cff", "#5dff7a", "#ffffff"] },
   mask: { label: "Hair / skin mask", colors: ["#ffaa00", "#00c8ff"] },
   landmarks: { label: "Face landmarks", colors: ["#00ff78"] },
@@ -52,10 +54,12 @@ const TRAITS = [
 // Face-shape cards: content + where its measurements live in the result.
 const SHAPES = [
   { content: faceProportions, part: (t) => (t.shape.status === "ok" ? t.shape.face : t.shape) },
+  { content: hairline, part: (t) => t.hairline },
   { content: eyeShape, part: (t) => (t.shape.status === "ok" ? t.shape.eyes : t.shape) },
   { content: eyebrows, part: (t) => t.brows },
   { content: noseShape, part: (t) => (t.shape.status === "ok" ? t.shape.nose : t.shape) },
   { content: lipShape, part: (t) => (t.shape.status === "ok" ? t.shape.lips : t.shape) },
+  { content: facialHair, part: (t) => t.beard },
 ];
 
 // Traits a photo can't measure reliably: the visitor picks theirs and reads

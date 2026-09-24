@@ -67,6 +67,21 @@ export const FACE_SOURCES = {
     doi: null,
     url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4904138/",
   },
+  hillmer2005: {
+    citation:
+      "Hillmer AM et al. (2005). Genetic variation in the human androgen receptor gene is the major determinant of common early-onset androgenetic alopecia. Am J Hum Genet 77:140–148.",
+    doi: "10.1086/431425",
+  },
+  heilmann2017: {
+    citation:
+      "Heilmann-Heimbach S et al. (2017). Meta-analysis identifies novel risk loci and yields systematic insights into the biology of male-pattern baldness. Nat Commun 8:14694.",
+    doi: "10.1038/ncomms14694",
+  },
+  chen2023: {
+    citation:
+      "Chen Y et al. (2023). Genetic prediction of male pattern baldness based on large independent datasets. Eur J Hum Genet 31:321–328.",
+    doi: "10.1038/s41431-022-01201-y",
+  },
   bonfante2021: {
     citation:
       "Bonfante B et al. (2021). A GWAS in Latin Americans identifies novel face shape loci, implicating VPS13B and a Denisovan introgressed region in facial variation. Sci Adv 7:eabc6160.",

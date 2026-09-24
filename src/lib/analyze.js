@@ -7,6 +7,8 @@ import { faceFrame } from "./regions";
 import { classifyEyeColor, measureEyeColor } from "./traits/eyeColor";
 import { measureFaceShape } from "./traits/faceShape";
 import { measureEyebrows } from "./traits/eyebrows";
+import { measureFacialHair } from "./traits/facialHair";
+import { measureHairline } from "./traits/hairline";
 import { classifyHairColor, measureHairColor } from "./traits/hairColor";
 import { classifySkinTone, measureSkinTone } from "./traits/skinTone";
 
@@ -74,6 +76,8 @@ export function analyze(image, detection) {
   // instead of a confidence level: it has no categories to be unsure between.
   traits.shape = isolated(() => measureFaceShape(face));
   traits.brows = isolated(() => measureEyebrows(imageData, mask, face.points));
+  traits.hairline = isolated(() => measureHairline(imageData, mask, face.points));
+  traits.beard = isolated(() => measureFacialHair(imageData, mask, face.points, face.blendshapes));
 
   const quality = isolated(() => assessQuality({ imageData, face, traits }), { issues: [] });
   for (const [name, t] of Object.entries(traits)) {

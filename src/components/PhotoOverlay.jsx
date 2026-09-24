@@ -46,6 +46,13 @@ export default function PhotoOverlay({ image, result, layers }) {
       if (traits.hair?.pixels) dot(traits.hair.pixels, "rgba(255, 160, 0, 0.6)", Math.max(2, lw));
       for (const patch of traits.skin?.patches ?? []) dot(patch.pixels, "rgba(255, 60, 210, 0.45)");
       for (const eye of Object.values(traits.eye?.eyes ?? {})) dot(eye.pixels, "rgba(0, 229, 255, 0.55)");
+      // facial hair: the zones checked and the pixels read as hair
+      if (traits.beard?.regions) {
+        dot(traits.beard.regions.hair, "rgba(255, 90, 54, 0.75)");
+        ctx.lineWidth = lw;
+        ctx.strokeStyle = "rgba(255, 90, 54, 0.9)";
+        for (const z of traits.beard.regions.zones) strokePolygon(ctx, z);
+      }
 
       ctx.lineWidth = lw;
       for (const side of ["right", "left"]) {
@@ -79,6 +86,11 @@ export default function PhotoOverlay({ image, result, layers }) {
       ctx.setLineDash([lw * 3, lw * 2]);
       line(faceHeight, "rgba(255, 255, 255, 0.9)");
       line(jaw, "rgba(255, 255, 255, 0.9)");
+      if (traits.hairline?.line) {
+        // the forehead: nasal root up to the hairline
+        const hl = traits.hairline.line;
+        line({ from: hl.from, to: hl.to }, "rgba(255, 170, 0, 0.95)");
+      }
       ctx.setLineDash([]);
       const m = fromFrame(frame, faceHeight.mark);
       ctx.fillStyle = "#ffffff";

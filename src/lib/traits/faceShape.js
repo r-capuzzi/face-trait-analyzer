@@ -22,6 +22,8 @@ import {
   MOUTH_CORNERS,
   NOSE_ALAR,
   faceFrame,
+  fromFrame,
+  toFrame,
 } from "../regions";
 import { offAxisDegrees } from "../quality";
 
@@ -44,16 +46,7 @@ const avg = (a, b) => ((a ?? 0) + (b ?? 0)) / 2;
 // A ratio whose denominator collapsed (degenerate landmarks) is "not measured", never NaN/Infinity.
 const ratio = (a, b) => (b > 1e-6 && Number.isFinite(a) ? a / b : null);
 
-// Coordinates of a point in the face frame, in pixels, and back again.
-export function fromFrame(f, { u, v }) {
-  return { x: f.mid.x + u * f.ex.x + v * f.ey.x, y: f.mid.y + u * f.ex.y + v * f.ey.y };
-}
-
-function toFrame(f, p) {
-  const dx = p.x - f.mid.x;
-  const dy = p.y - f.mid.y;
-  return { u: dx * f.ex.x + dy * f.ex.y, v: dx * f.ey.x + dy * f.ey.y };
-}
+export { fromFrame }; // the overlay converts measurement lines back to pixels
 
 function eyeMeasures(f, points, side) {
   const [a, b] = EYE_CORNERS[side].map((i) => toFrame(f, points[i]));

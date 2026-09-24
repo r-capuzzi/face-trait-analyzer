@@ -121,6 +121,11 @@ test("the face-shape section shows proportions, the canon comparison and express
   const brows = screen.getByRole("article", { name: "Eyebrows" });
   expect(within(brows).getByText(/aren't clearly visible/)).toBeInTheDocument();
   expect(within(brows).queryByText("Unibrow")).not.toBeInTheDocument();
+  // likewise the hairline and facial-hair cards explain why they can't measure
+  const hairlineCard = screen.getByRole("article", { name: "Forehead & hairline" });
+  expect(within(hairlineCard).getByText(/No hairline was found/)).toBeInTheDocument();
+  const beardCard = screen.getByRole("article", { name: "Facial hair" });
+  expect(within(beardCard).getByText(/cheeks aren't clearly visible/)).toBeInTheDocument();
 });
 
 test("self-reported traits say they don't use the photo, and explain whatever you pick", async () => {
