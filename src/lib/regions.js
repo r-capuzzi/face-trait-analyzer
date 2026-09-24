@@ -21,6 +21,15 @@ export const BROWS = {
   left: [276, 283, 282, 295, 285, 300, 293, 334, 296, 336],
 };
 
+// The same points as two chains per brow (FACE_LANDMARKS_*_EYEBROW), each
+// ordered from the outer end to the inner end. Plotted on a test photo,
+// the upper chain runs along the top edge of the brow and the lower chain
+// along its bottom edge.
+export const BROW_LINES = {
+  right: { upper: [70, 63, 105, 66, 107], lower: [46, 53, 52, 65, 55] },
+  left: { upper: [300, 293, 334, 296, 336], lower: [276, 283, 282, 295, 285] },
+};
+
 export const FACE_TOP = 10; // first/last point of FACE_LANDMARKS_FACE_OVAL
 export const MOUTH_CORNERS = { right: 61, left: 291 };
 
