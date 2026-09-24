@@ -27,6 +27,15 @@ const lipShape = {
       format: (v) => `${Math.round(v * 100)}%`,
       describe: (v) => `Both lips together are about ${Math.round(v * 100)}% as tall as your mouth is wide.`,
     },
+    {
+      key: "bow",
+      label: "Cupid's bow",
+      format: (v) => `${Math.round(v * 100)}%`,
+      describe: (v) =>
+        v < 0.05
+          ? "The center of your upper lip is nearly flat in this photo, with little dip between the two peaks."
+          : `The dip between the two peaks of your upper lip is about ${Math.round(v * 100)}% of the upper lip's height.`,
+    },
   ],
 
   mechanism: [

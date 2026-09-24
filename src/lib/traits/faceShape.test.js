@@ -14,7 +14,29 @@ test("measures the designed proportions", () => {
   expect(s.lips.mouthToNose).toBeCloseTo(44 / 30, 5);
   expect(s.lips.lowerToUpper).toBeCloseTo(1.5, 5);
   expect(s.lips.fullness).toBeCloseTo(15 / 44, 5);
-  expect([s.eyes.notes, s.nose.notes, s.lips.notes].flat()).toEqual([]);
+  expect(s.lips.bow).toBeCloseTo(2 / 6, 5);
+  expect([s.eyes.notes, s.nose.notes, s.lips.notes, s.face.notes].flat()).toEqual([]);
+});
+
+test("face proportions: width vs. height, midface vs. lower face, jaw vs. face width", () => {
+  const s = measureFaceShape({ points: designedFace(), ...neutral });
+  // face 160 wide; nasion y 96 -> subnasale 145 -> menton 240
+  expect(s.face.widthToHeight).toBeCloseTo(160 / 144, 5);
+  expect(s.face.midToLower).toBeCloseTo(49 / 95, 5);
+  // jaw angles on the oval at 120°/240°: 2 * 80 * sin(60°) wide
+  expect(s.face.jawToFace).toBeCloseTo((2 * 80 * Math.sin(Math.PI / 3)) / 160, 5);
+});
+
+test("a flat upper lip has a Cupid's bow of 0, never negative", () => {
+  const pts = designedFace();
+  pts[37] = { x: 94, y: 152 }; // "peaks" below the center point
+  pts[267] = { x: 106, y: 152 };
+  expect(measureFaceShape({ points: pts, ...neutral }).lips.bow).toBe(0);
+});
+
+test("an open mouth flags the face-proportions card (it lengthens the lower face)", () => {
+  const s = measureFaceShape({ points: designedFace(), blendshapes: { jawOpen: 0.5 }, matrix: null });
+  expect(s.face.notes.join(" ")).toMatch(/lengthens the lower face/);
 });
 
 test("a tilted head gives the same ratios and tilt (face-aligned frame)", () => {

@@ -5,6 +5,7 @@ const STYLE = {
   eye: { icon: "eye", accent: "eye", kicker: "Pigment" },
   hair: { icon: "hair", accent: "hair", kicker: "Pigment" },
   skin: { icon: "skin", accent: "skin", kicker: "Pigment" },
+  face: { icon: "face", accent: "shape", kicker: "Shape" },
   eyes: { icon: "eye", accent: "shape", kicker: "Shape" },
   brows: { icon: "brow", accent: "brow", kicker: "Hair" },
   nose: { icon: "nose", accent: "shape", kicker: "Shape" },

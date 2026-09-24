@@ -85,6 +85,31 @@ function measureBrow(imageData, mask, points, f, side) {
 
 const darkerThan = (refL) => refL - Math.max(BROW_RULE.minDarkerL, BROW_RULE.darkerShare * refL);
 
+// Arch: how far the brow's top edge rises above the straight line joining
+// its two ends, as a share of the brow's length (0 = flat). Measured in the
+// face frame, so a tilted head doesn't change it. This comes from the face
+// model's brow outline, so it describes the brow's overall curve.
+export function browArch(points, f, side) {
+  const toUV = (p) => ({
+    u: (p.x - f.mid.x) * f.ex.x + (p.y - f.mid.y) * f.ex.y,
+    v: (p.x - f.mid.x) * f.ey.x + (p.y - f.mid.y) * f.ey.y,
+  });
+  const upper = pick(points, BROW_LINES[side].upper).map(toUV);
+  const a = upper[0];
+  const b = upper.at(-1);
+  const length = Math.hypot(b.u - a.u, b.v - a.v);
+  if (length < 1e-6) return null;
+  // rise above the end-to-end chord (v grows downward, so "above" = smaller v)
+  const rise = Math.max(
+    0,
+    ...upper.slice(1, -1).map((p) => {
+      const t = (p.u - a.u) / (b.u - a.u || 1e-6);
+      return a.v + t * (b.v - a.v) - p.v;
+    })
+  );
+  return rise / length;
+}
+
 export function unibrowLevel(share) {
   if (share >= BROW_RULE.unibrowHigh) return "high";
   if (share >= BROW_RULE.unibrowMedium) return "medium";
@@ -149,6 +174,11 @@ export function measureEyebrows(imageData, mask, points) {
         clear.length,
     unibrow: lowContrast ? null : unibrow,
     unibrowLevel: lowContrast || unibrow === null ? null : unibrowLevel(unibrow),
+    // geometric, from landmarks: still measurable when brows are light
+    arch: (() => {
+      const arches = ["right", "left"].map((side) => browArch(points, f, side)).filter((v) => v !== null);
+      return arches.length ? arches.reduce((s, v) => s + v, 0) / arches.length : null;
+    })(),
     contrast,
     notes,
     // overlay geometry

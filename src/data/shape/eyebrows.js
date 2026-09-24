@@ -29,6 +29,15 @@ const eyebrows = {
       format: pct,
       describe: (v) => `${pct(v)} of the eyebrow outline reads as hair. Denser brows fill more of it.`,
     },
+    {
+      key: "arch",
+      label: "Arch",
+      format: pct,
+      describe: (v) =>
+        v < 0.03
+          ? "Your brows run nearly straight from end to end."
+          : `The top of your brows rises about ${pct(v)} of their length above a straight line between their ends.`,
+    },
   ],
 
   mechanism: [
@@ -68,6 +77,7 @@ const eyebrows = {
     },
     "Hair is found by comparing each pixel with the skin just above your brows. Very light or fine brows can't be told apart from skin, and a deep shadow between the brows can look like hair.",
     "Bangs and glasses frames over the brows are left out of the measurement.",
+    "Arch comes from the face model's outline of your brows, so it describes their overall curve, not the exact edge of every hair.",
   ],
   sources: FACE_SOURCES,
 };

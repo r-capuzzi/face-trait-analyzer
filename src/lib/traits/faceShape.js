@@ -12,10 +12,13 @@
 // head doesn't change the numbers.
 
 import {
+  CUPIDS_BOW,
   EYE_CORNERS,
   EYE_OPENING,
   FACE_OVAL,
+  JAW_ANGLES,
   LIP_MIDLINE,
+  MIDLINE,
   MOUTH_CORNERS,
   NOSE_ALAR,
   faceFrame,
@@ -28,6 +31,10 @@ import { offAxisDegrees } from "../quality";
 export const EXPRESSION = {
   smile: 0.5, // smiling stretches the mouth wider and thins the lips
   jawOpen: 0.2, // an open mouth changes lip heights
+  // The chin drops as soon as the lips part: a toothy grin (jawOpen 0.12 on a
+  // test photo) measured a clearly shorter midface-to-lower-face ratio than a
+  // closed-mouth face (0.62 vs 0.83), so face proportions use a lower bar.
+  jawOpenFace: 0.1,
   squint: 0.5, // squinting or smiling narrows the eye opening
   blink: 0.35,
 };
@@ -90,6 +97,21 @@ export function measureFaceShape(face) {
   const mouthWidth = Math.hypot(mouthL.u - mouthR.u, mouthL.v - mouthR.v);
   const upperLip = P(LIP_MIDLINE.upperInner).v - P(LIP_MIDLINE.upperTop).v;
   const lowerLip = P(LIP_MIDLINE.lowerBottom).v - P(LIP_MIDLINE.lowerInner).v;
+  // Cupid's bow: how far the center dip sits below the two peaks (v grows
+  // downward); a flat upper lip gives ~0, never negative
+  const bowPeaks = (P(CUPIDS_BOW.peaks[0]).v + P(CUPIDS_BOW.peaks[1]).v) / 2;
+  const bowDepth = Math.max(0, P(CUPIDS_BOW.dip).v - bowPeaks);
+
+  // Vertical face sections along the midline (measured down the face frame)
+  const nasion = P(MIDLINE.nasion);
+  const subnasale = P(MIDLINE.subnasale);
+  const menton = P(MIDLINE.menton);
+  const faceHeight = menton.v - nasion.v; // nasal root to chin: the face below the brows
+  const midface = subnasale.v - nasion.v;
+  const lowerFace = menton.v - subnasale.v;
+  const jawR = P(JAW_ANGLES.right);
+  const jawL = P(JAW_ANGLES.left);
+  const jawWidth = Math.abs(jawL.u - jawR.u);
 
   // What in this photo distorts which measurement.
   const turn = offAxisDegrees(matrix);
@@ -125,10 +147,21 @@ export function measureFaceShape(face) {
       mouthToNose: ratio(mouthWidth, noseWidth),
       lowerToUpper: ratio(lowerLip, upperLip),
       fullness: ratio(upperLip + lowerLip, mouthWidth),
+      bow: ratio(bowDepth, upperLip),
       notes: [
         smiling && "You're smiling, which stretches the mouth wider and thins the lips.",
         mouthOpen && "Your mouth is open, which changes the lip measurements.",
         turned && turnNote,
+      ].filter(Boolean),
+    },
+    face: {
+      widthToHeight: ratio(faceWidth, faceHeight),
+      midToLower: ratio(midface, lowerFace),
+      jawToFace: ratio(jawWidth, faceWidth),
+      notes: [
+        (bs.jawOpen ?? 0) > EXPRESSION.jawOpenFace &&
+          "Your mouth is open (even slightly, as in a toothy smile), which lengthens the lower face.",
+        turned && "Your head is turned or tilted, which foreshortens heights and widths unevenly.",
       ].filter(Boolean),
     },
     // face-frame geometry for the overlay (convert with fromFrame)
@@ -138,6 +171,8 @@ export function measureFaceShape(face) {
       nose: { from: P(NOSE_ALAR.right), to: P(NOSE_ALAR.left) },
       mouth: { from: mouthR, to: mouthL },
       lips: { from: P(LIP_MIDLINE.upperTop), to: P(LIP_MIDLINE.lowerBottom) },
+      faceHeight: { from: nasion, to: menton, mark: subnasale },
+      jaw: { from: jawR, to: jawL },
       frame: f,
     },
   };

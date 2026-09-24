@@ -29,10 +29,15 @@ Eye, nose and lip proportions come straight from landmark geometry ([`faceShape.
 
 | Feature | Measures |
 |---|---|
+| Face proportions | face width ÷ height (nasal root to chin), midface ÷ lower face (with the "equal thirds" canon), jaw width ÷ face width |
 | Eyes | openness (height ÷ width), corner tilt (degrees), spacing (inner-corner gap ÷ eye width) |
 | Nose | width at the nose wings ÷ eye gap, and ÷ face width |
-| Lips | mouth width ÷ nose width, lower ÷ upper lip height, lip height ÷ mouth width |
-| Eyebrows | unibrow (share of the gap between the brows that reads as hair), thickness (hair area ÷ brow length), fill |
+| Lips | mouth width ÷ nose width, lower ÷ upper lip height, lip height ÷ mouth width, Cupid's bow depth |
+| Eyebrows | unibrow (share of the gap between the brows that reads as hair), thickness (hair area ÷ brow length), fill, arch |
+
+Each landmark not taken from one of MediaPipe's contour constants (nasal root 168, nose base 2, chin 152, jaw angles 172/397, nose wings 129/358) was checked by plotting the candidates on a test photo.
+
+The eye-color sample now finds the pupil's edge from the radial lightness profile instead of assuming it covers 35% of the iris radius. A dilated pupil (6 mm pupils against an ~11.7 mm iris are ordinary) was leaking into the sample and pushing blue eyes toward "intermediate". A test covers this case.
 
 The segmentation model labels eyebrows as face skin, so brow hair ([`eyebrows.js`](src/lib/traits/eyebrows.js)) is found by comparing each pixel with a strip of forehead skin just above the brow. The same rule then works on any skin tone, which a test checks. Very light brows, where there isn't enough contrast, aren't measured, and a brow half-hidden by bangs is left out rather than averaged in. The genetics come from a study that scored brows in men only, because most women had shaped theirs (Adhikari 2016: FOXL2 for thickness, PAX3 for the unibrow), and the card says so.
 

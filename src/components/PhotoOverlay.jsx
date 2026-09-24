@@ -58,7 +58,7 @@ export default function PhotoOverlay({ image, result, layers }) {
       for (const patch of traits.skin?.patches ?? []) strokeCircle(ctx, patch);
     }
     if (layers.shape && traits.shape?.lines) {
-      const { frame, eyes, eyeGap, nose, mouth, lips } = traits.shape.lines;
+      const { frame, eyes, eyeGap, nose, mouth, lips, faceHeight, jaw } = traits.shape.lines;
       ctx.lineWidth = lw * 1.3;
       const line = ({ from, to }, color) => {
         const a = fromFrame(frame, from);
@@ -74,6 +74,17 @@ export default function PhotoOverlay({ image, result, layers }) {
       line(nose, "#ff4fd8");
       line(mouth, "#ff9f1a");
       line(lips, "#5dff7a");
+      // face proportions: the midline (nasal root -> chin) with a tick at the
+      // base of the nose, and the jaw width between its angles
+      ctx.setLineDash([lw * 3, lw * 2]);
+      line(faceHeight, "rgba(255, 255, 255, 0.9)");
+      line(jaw, "rgba(255, 255, 255, 0.9)");
+      ctx.setLineDash([]);
+      const m = fromFrame(frame, faceHeight.mark);
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(m.x, m.y, lw * 2, 0, Math.PI * 2);
+      ctx.fill();
     }
     if (layers.shape && traits.brows?.regions) {
       // eyebrows: outline, the pixels read as hair, and the between-brows gap

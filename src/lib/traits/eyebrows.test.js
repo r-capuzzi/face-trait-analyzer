@@ -1,6 +1,6 @@
 import { MASK } from "../maskCategories";
-import { BROW_LINES, IRIS } from "../regions";
-import { measureEyebrows, unibrowLevel } from "./eyebrows";
+import { BROW_LINES, IRIS, faceFrame } from "../regions";
+import { browArch, measureEyebrows, unibrowLevel } from "./eyebrows";
 
 const W = 300;
 const H = 200;
@@ -96,6 +96,18 @@ test("bangs over one brow: that brow is left out (not averaged in) and the card 
 
 test("bangs covering the brows make them unmeasurable instead of guessed", () => {
   expect(measure({ bangsTo: 100 }).status).toBe("unmeasurable");
+});
+
+test("arch: flat brows measure 0; a raised middle measures its rise over the brow's length", () => {
+  const { points } = browFace();
+  const f = faceFrame(points);
+  expect(browArch(points, f, "right")).toBeCloseTo(0, 5);
+  // lift the middle point of the right brow's top edge by 6 px over a 60 px brow
+  points[BROW_LINES.right.upper[2]] = { x: 100, y: 74 };
+  expect(browArch(points, f, "right")).toBeCloseTo(6 / 60, 5);
+  // a middle point BELOW the chord (a sagging brow) doesn't count as arch
+  points[BROW_LINES.right.upper[2]] = { x: 100, y: 86 };
+  expect(browArch(points, f, "right")).toBe(0);
 });
 
 test("unibrow levels follow the study's none / medium / high scale", () => {

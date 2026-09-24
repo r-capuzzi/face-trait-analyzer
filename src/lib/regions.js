@@ -48,6 +48,18 @@ export const LIP_MIDLINE = { upperTop: 0, upperInner: 13, lowerInner: 14, lowerB
 // cheek, while 64/294 and 98/327 sit lower, at the base of the nose wings.
 export const NOSE_ALAR = { right: 129, left: 358 };
 
+// Midline and jaw landmarks for face proportions, each checked by plotting
+// candidates on a test photo: 168 sits at the nasal root between the eyes
+// (nasion), 2 where the nose meets the upper lip (subnasale; 164 is lower,
+// on the philtrum), 152 at the bottom of the chin (menton), and 172/397
+// where the jawline turns (gonion; 58/288 sit higher, near the ears).
+export const MIDLINE = { nasion: 168, subnasale: 2, menton: 152 };
+export const JAW_ANGLES = { right: 172, left: 397 };
+
+// Cupid's bow: the two peaks of the upper lip and the dip between them
+// (from FACE_LANDMARKS_LIPS; the dip, 0, plotted lower than both peaks).
+export const CUPIDS_BOW = { peaks: [37, 267], dip: 0 };
+
 export const FACE_OVAL = [
   10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148,
   176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109,

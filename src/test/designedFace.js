@@ -1,4 +1,13 @@
-import { EYE_CORNERS, EYE_OPENING, FACE_OVAL, IRIS, LIP_MIDLINE, NOSE_ALAR } from "../lib/regions";
+import {
+  CUPIDS_BOW,
+  EYE_CORNERS,
+  EYE_OPENING,
+  FACE_OVAL,
+  IRIS,
+  LIP_MIDLINE,
+  MIDLINE,
+  NOSE_ALAR,
+} from "../lib/regions";
 
 // A face drawn to known proportions (image x/y, subject's right on the left):
 //   eyes 30 px wide with a 30 px gap -> spacing 1.0
@@ -38,5 +47,13 @@ export function designedFace() {
   pts[LIP_MIDLINE.upperInner] = { x: 100, y: 156 };
   pts[LIP_MIDLINE.lowerInner] = { x: 100, y: 158 };
   pts[LIP_MIDLINE.lowerBottom] = { x: 100, y: 167 };
+  // Cupid's bow: peaks 2 px above the center dip (upper lip is 6 px tall)
+  pts[CUPIDS_BOW.peaks[0]] = { x: 94, y: 148 };
+  pts[CUPIDS_BOW.peaks[1]] = { x: 106, y: 148 };
+  // midline: nasion 4 px above the pupils, subnasale between nose and lip.
+  // Menton (152) and the jaw angles (172/397) already sit on the oval above:
+  // chin at y = 240, jaw angles at 120°/240° -> x = 169.3 / 30.7, y = 185.
+  pts[MIDLINE.nasion] = { x: 100, y: 96 };
+  pts[MIDLINE.subnasale] = { x: 100, y: 145 };
   return pts;
 }
