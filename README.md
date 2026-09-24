@@ -2,6 +2,8 @@
 
 Upload a photo and get your **eye, hair and skin color** measured, then read how the genes behind each trait work, how well science understands them, and what a photo can and can't tell you.
 
+**Try it: [face-trait-analyzer.vercel.app](https://face-trait-analyzer.vercel.app)**
+
 - **Private by design:** all analysis runs in the browser. The photo is never uploaded.
 - **Traits, not labels:** each trait is explained on its own. The app never guesses ancestry, ethnicity or race.
 - **Cited and conservative:** every genetics claim links to its source paper, every result has a confidence level, and uncertain results are shown as "between X and Y".
@@ -121,6 +123,8 @@ npm run preview  # production build with the real CSP, http://localhost:4173
 ```
 
 Stack: React 19, Vite 8, Vitest 5, `@mediapipe/tasks-vision` 1.0.1 (models pinned by version).
+
+Deployed on Vercel: every push to `master` redeploys, and [`vercel.json`](vercel.json) serves the same Content Security Policy as `npm run preview`. It was checked on the live site: a test upload to another origin was refused, and the only requests were downloads from the site, jsDelivr and Google's model bucket.
 
 ## Credits
 
