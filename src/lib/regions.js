@@ -24,6 +24,26 @@ export const BROWS = {
 export const FACE_TOP = 10; // first/last point of FACE_LANDMARKS_FACE_OVAL
 export const MOUTH_CORNERS = { right: 61, left: 291 };
 
+// Eye corners: the two ends of each FACE_LANDMARKS_*_EYE contour. Which one
+// is the inner corner is decided geometrically (nearer the other eye), so
+// nothing depends on remembering the mesh's conventions.
+export const EYE_CORNERS = { right: [33, 133], left: [263, 362] };
+
+// Lip midline points from FACE_LANDMARKS_LIPS: top of the upper lip, the
+// two inner lip edges, bottom of the lower lip.
+export const LIP_MIDLINE = { upperTop: 0, upperInner: 13, lowerInner: 14, lowerBottom: 17 };
+
+// Widest points of the nose wings (alare). The package has no nose contour
+// constant, so these were checked visually: plotted on a neutral-faced test
+// photo, 129/358 sit on the outer edge of each nose wing where it meets the
+// cheek, while 64/294 and 98/327 sit lower, at the base of the nose wings.
+export const NOSE_ALAR = { right: 129, left: 358 };
+
+export const FACE_OVAL = [
+  10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148,
+  176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103, 67, 109,
+];
+
 const mean = (pts) => ({
   x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
   y: pts.reduce((s, p) => s + p.y, 0) / pts.length,

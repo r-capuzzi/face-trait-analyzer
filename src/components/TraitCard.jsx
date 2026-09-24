@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { labToHex } from "../lib/color";
 import Cite, { citationOrder } from "./Cite";
 import CorrectionControl from "./CorrectionControl";
+import GeneticsDetails from "./GeneticsDetails";
 
 const CONFIDENCE_TEXT = {
   high: "High confidence",
@@ -78,68 +79,7 @@ export default function TraitCard({ content, measurement, override, onOverride, 
         </section>
       )}
 
-      <details className="trait__more">
-        <summary>How it works: the genetics</summary>
-        {content.mechanism.map((m) => (
-          <p key={m.text}>
-            {m.text}
-            {cite(m.cite)}
-          </p>
-        ))}
-
-        <h4>Key genes</h4>
-        <ul className="genes">
-          {content.genes.map((g) => (
-            <li key={g.symbol}>
-              <strong>{g.symbol}</strong> {g.variant && <code>{g.variant}</code>}
-              <p>{g.role}</p>
-              <p>
-                {g.effect}
-                {cite(g.cite)}
-              </p>
-              {g.note && <p className="genes__note">{g.note}</p>}
-            </li>
-          ))}
-        </ul>
-
-        <h4>Myth vs. reality</h4>
-        {content.myths.map((m) => (
-          <div key={m.myth} className="myth">
-            <p>
-              <strong>Myth:</strong> {m.myth}
-            </p>
-            <p>
-              <strong>Reality:</strong> {m.reality}
-              {cite(m.cite)}
-            </p>
-          </div>
-        ))}
-
-        <h4>Limits of this measurement</h4>
-        <ul>
-          {content.limitations.map((l) => {
-            const { text, cite: keys } = typeof l === "string" ? { text: l } : l;
-            return (
-              <li key={text}>
-                {text}
-                {cite(keys)}
-              </li>
-            );
-          })}
-        </ul>
-
-        <h4>Sources</h4>
-        <ol className="sources">
-          {[...order.keys()].map((k) => (
-            <li key={k} id={`src-${content.id}-${k}`}>
-              {content.sources[k].citation}{" "}
-              <a href={`https://doi.org/${content.sources[k].doi}`} target="_blank" rel="noreferrer">
-                doi:{content.sources[k].doi}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </details>
+      <GeneticsDetails content={content} order={order} cite={cite} />
     </article>
   );
 }

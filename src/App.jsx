@@ -8,14 +8,19 @@ import HairDetails from "./components/HairDetails";
 import SkinDetails from "./components/SkinDetails";
 import QualityBanner from "./components/QualityBanner";
 import AboutSection from "./components/AboutSection";
+import ShapeCard from "./components/ShapeCard";
 import { useAnalysis } from "./hooks/useAnalysis";
 import eyeColor from "./data/traits/eyeColor";
 import hairColor from "./data/traits/hairColor";
 import skinTone from "./data/traits/skinTone";
+import eyeShape from "./data/shape/eyeShape";
+import noseShape from "./data/shape/noseShape";
+import lipShape from "./data/shape/lipShape";
 import "./App.css";
 
 const LAYER_LABELS = {
   regions: "Sampled pixels",
+  shape: "Face measurements",
   mask: "Hair / skin mask",
   landmarks: "Face landmarks",
 };
@@ -37,9 +42,11 @@ const TRAITS = [
   { key: "skin", content: skinTone, details: (t) => <SkinDetails skin={t} /> },
 ];
 
+const SHAPES = [eyeShape, noseShape, lipShape];
+
 export default function App() {
   const { state, analyzeFile, reset } = useAnalysis();
-  const [layers, setLayers] = useState({ regions: true, mask: false, landmarks: false });
+  const [layers, setLayers] = useState({ regions: true, shape: true, mask: false, landmarks: false });
   const [overrides, setOverrides] = useState({});
   const busy = ["loading-image", "loading-models", "analyzing"].includes(state.status);
 
@@ -56,9 +63,9 @@ export default function App() {
       <header className="app__header">
         <h1>Trait Genetics Explainer</h1>
         <p className="app__lede">
-          Measures your eye, hair and skin color from a photo, then explains the genes behind each
-          trait and how well science understands them. It runs entirely in your browser and never
-          guesses ancestry or ethnicity.
+          Measures your eye, hair and skin color and the proportions of your eyes, nose and lips
+          from a photo, then explains the genes behind each trait and how well science understands
+          them. It runs entirely in your browser and never guesses ancestry or ethnicity.
         </p>
       </header>
 
@@ -102,6 +109,7 @@ export default function App() {
             </div>
 
             <div className="results__traits">
+              <h2 className="section-title">Color</h2>
               <QualityBanner issues={result.quality.issues} warnings={result.warnings} />
               {TRAITS.map(({ key, content, details }) => (
                 <TraitCard
@@ -113,6 +121,22 @@ export default function App() {
                   details={result.traits[key].status === "ok" && details(result.traits[key])}
                 />
               ))}
+
+              <section className="shape" aria-labelledby="shape-heading">
+                <h2 id="shape-heading" className="section-title">Face shape</h2>
+                <p className="section-lede">
+                  Proportions within your own face. There are no 'normal' ranges and no better or worse:
+                  published norms are split by ethnic group, and this tool doesn't compare you to groups.
+                  For these, a relaxed face photographed from about 1.5 m works best.
+                </p>
+                {result.traits.shape.status === "ok" ? (
+                  SHAPES.map((content) => (
+                    <ShapeCard key={content.id} content={content} part={result.traits.shape[content.id]} />
+                  ))
+                ) : (
+                  <p className="trait__unmeasured">{result.traits.shape.reason}</p>
+                )}
+              </section>
             </div>
           </section>
         )}

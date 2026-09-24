@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import App from "./App";
 import { BLUE, syntheticFace } from "./test/syntheticFace";
 import { syntheticHead } from "./test/syntheticHead";
+import { designedFace } from "./test/designedFace";
 import { loadImageFile, ImageLoadError } from "./lib/imageLoad";
 import { getVision } from "./lib/vision";
 
@@ -93,6 +94,28 @@ test("a photo problem is listed in the photo check and lowers the affected trait
   expect(await screen.findByText(/eyes look partly closed/)).toBeInTheDocument();
   const eye = screen.getByRole("article", { name: "Eye color" });
   expect(within(eye).getByText(/^(High|Medium|Low) confidence$/)).toHaveTextContent("Medium confidence");
+});
+
+test("the face-shape section shows proportions, the canon comparison and expression notes", async () => {
+  mockPipeline({
+    faces: [
+      {
+        points: designedFace(),
+        blendshapes: { mouthSmileLeft: 0.9, mouthSmileRight: 0.9 },
+        matrix: null,
+      },
+    ],
+  });
+  await upload();
+  const nose = await screen.findByRole("article", { name: "Nose width" });
+  expect(within(nose).getByText("1.00×")).toBeInTheDocument();
+  expect(within(nose).getByText(/held for only 40%/)).toBeInTheDocument();
+  // a smile (without squinting) flags lips and nose, not eyes
+  const lips = screen.getByRole("article", { name: "Lips and mouth" });
+  expect(within(lips).getByText(/You're smiling/)).toBeInTheDocument();
+  expect(within(nose).getByText(/flares the nose wings/)).toBeInTheDocument();
+  const eyes = screen.getByRole("article", { name: "Eye shape" });
+  expect(within(eyes).queryByText(/smiling/)).not.toBeInTheDocument();
 });
 
 test("a photo with no face shows a helpful error instead of results", async () => {

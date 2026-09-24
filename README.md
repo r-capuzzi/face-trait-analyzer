@@ -23,6 +23,18 @@ MediaPipe only finds *where* things are. All color measurement is plain JavaScri
 | Hair color | Interior of the hair mask (edges, shine and shadow trimmed) | Lightness continuum (Morgan et al. 2018) plus red and gray rules | black, brown, blond, red, gray |
 | Skin tone | Cheek and forehead patches within the face-skin mask | Individual Typology Angle (Chardon 1991) plus the nearest Monk Skin Tone swatch | six ITA categories |
 
+### Face shape
+
+Eye, nose and lip proportions come straight from landmark geometry ([`faceShape.js`](src/lib/traits/faceShape.js)). Each is measured in a face-aligned frame, so a tilted head gives the same numbers, and each is a **ratio within the person's own face**:
+
+| Feature | Measures |
+|---|---|
+| Eyes | openness (height ÷ width), corner tilt (degrees), spacing (inner-corner gap ÷ eye width) |
+| Nose | width at the nose wings ÷ eye gap, and ÷ face width |
+| Lips | mouth width ÷ nose width, lower ÷ upper lip height, lip height ÷ mouth width |
+
+There are no "normal ranges" or wide/narrow labels, because published facial norms are split by ethnic group. The only reference points are the neoclassical art canons, shown as a myth: Farkas (1985) found even the best-fitting canon held for only 40% of real faces. Expressions are flagged per card using MediaPipe's expression scores. Smiling flags lips and nose, since the nose base widens in 92% of smiles (Beiraghi-Toosi 2016), and squinting flags the eyes. Nose width also comes with the selfie caveat: at about 30 cm the nose base looks about 30% wider (Ward 2018).
+
 ### Confidence
 
 Confidence starts from how far a result sits from its category boundary. It then drops one level for each photo problem that affects that trait:

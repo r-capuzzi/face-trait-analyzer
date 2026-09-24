@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { eyeOpening, irisCircle } from "../lib/regions";
 import { MASK } from "../lib/maskCategories";
+import { fromFrame } from "../lib/traits/faceShape";
 
 // Tint colors for the segmentation mask layer, RGBA.
 const MASK_TINT = {
@@ -10,7 +11,8 @@ const MASK_TINT = {
 };
 
 // Draws the photo plus toggleable layers showing exactly which pixels each
-// measurement used: cyan = iris, magenta = skin patches, orange = hair.
+// measurement used (cyan = iris, magenta = skin patches, orange = hair) and
+// the lines each face-shape proportion was measured along.
 export default function PhotoOverlay({ image, result, layers }) {
   const canvasRef = useRef(null);
 
@@ -54,6 +56,24 @@ export default function PhotoOverlay({ image, result, layers }) {
       }
       ctx.strokeStyle = "#ff4fd8";
       for (const patch of traits.skin?.patches ?? []) strokeCircle(ctx, patch);
+    }
+    if (layers.shape && traits.shape?.lines) {
+      const { frame, eyes, eyeGap, nose, mouth, lips } = traits.shape.lines;
+      ctx.lineWidth = lw * 1.3;
+      const line = ({ from, to }, color) => {
+        const a = fromFrame(frame, from);
+        const b = fromFrame(frame, to);
+        ctx.strokeStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      };
+      for (const e of eyes) line(e, "#ffd400");
+      line(eyeGap, "#00e5ff");
+      line(nose, "#ff4fd8");
+      line(mouth, "#ff9f1a");
+      line(lips, "#5dff7a");
     }
   }, [image, result, layers]);
 

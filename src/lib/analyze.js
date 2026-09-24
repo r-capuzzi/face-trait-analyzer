@@ -5,6 +5,7 @@ import { combineConfidence } from "./confidence";
 import { assessQuality } from "./quality";
 import { faceFrame } from "./regions";
 import { classifyEyeColor, measureEyeColor } from "./traits/eyeColor";
+import { measureFaceShape } from "./traits/faceShape";
 import { classifyHairColor, measureHairColor } from "./traits/hairColor";
 import { classifySkinTone, measureSkinTone } from "./traits/skinTone";
 
@@ -64,9 +65,13 @@ export function analyze(image, detection) {
     ),
   };
 
+  // Shape carries its own per-feature photo notes (expression, head turn)
+  // instead of a confidence level: it has no categories to be unsure between.
+  traits.shape = isolated(() => measureFaceShape(face));
+
   const quality = isolated(() => assessQuality({ imageData, face, traits }), { issues: [] });
   for (const [name, t] of Object.entries(traits)) {
-    if (t.status === "ok") {
+    if (t.status === "ok" && name !== "shape") {
       t.confidence = combineConfidence({ trait: name, margin: t.margin, issues: quality.issues });
     }
   }
