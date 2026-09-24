@@ -14,7 +14,7 @@ const IRIS_R = 40;
 
 // Paints two synthetic eyes: sclera ellipse, iris disc, black pupil and a
 // white catchlight - the last two must NOT leak into the measurement.
-export function syntheticFace(irisColors, { lidHalfHeight = 45 } = {}) {
+export function syntheticFace(irisColors, { lidHalfHeight = 45, pupilR = 14 } = {}) {
   const data = new Uint8ClampedArray(W * H * 4);
   const points = Array.from({ length: 478 }, () => ({ x: 0, y: 0 }));
   for (let y = 0; y < H; y++) {
@@ -27,7 +27,7 @@ export function syntheticFace(irisColors, { lidHalfHeight = 45 } = {}) {
         if (!inLids) continue;
         c = SCLERA;
         if (d <= IRIS_R) c = irisColors[side];
-        if (d <= 14) c = [5, 5, 5]; // pupil
+        if (d <= pupilR) c = [5, 5, 5]; // pupil
         if (Math.hypot(x - (cx + 15), y - (cy - 12)) <= 5) c = [255, 255, 255]; // catchlight
       }
       data.set([...c, 255], (y * W + x) * 4);

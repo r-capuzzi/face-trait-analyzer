@@ -33,6 +33,22 @@ test("a blue iris measures as blue, ignoring the pupil and the catchlight", () =
   expect(m.heterochromia).toBe(false);
 });
 
+test("a dilated pupil doesn't leak into the sample and turn blue eyes brown", () => {
+  // pupil at 60% of the iris radius (a ~7 mm pupil in dim light) - well past
+  // the old fixed 35% cutoff, so black pupil pixels would count as pigment
+  const { imageData, points } = syntheticFace({ right: BLUE, left: BLUE }, { pupilR: 24 });
+  const m = measureEyeColor(imageData, points);
+  expect(m.pie).toBe(1);
+  expect(classifyEyeColor(m).category).toBe("blue");
+  expect(m.eyes.right.innerRadius).toBeGreaterThan(0.6);
+});
+
+test("with no clear pupil edge (dark iris) the default inner cutoff is kept", () => {
+  const { imageData, points } = syntheticFace({ right: [30, 20, 14], left: [30, 20, 14] });
+  const m = measureEyeColor(imageData, points);
+  expect(m.eyes.right.innerRadius).toBeCloseTo(0.35);
+});
+
 test("a brown iris measures as brown", () => {
   const { imageData, points } = syntheticFace({ right: BROWN, left: BROWN });
   const m = measureEyeColor(imageData, points);
