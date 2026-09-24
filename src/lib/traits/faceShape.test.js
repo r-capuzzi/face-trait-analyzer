@@ -23,6 +23,8 @@ test("face proportions: width vs. height, midface vs. lower face, jaw vs. face w
   // face 160 wide; nasion y 96 -> subnasale 145 -> menton 240
   expect(s.face.widthToHeight).toBeCloseTo(160 / 144, 5);
   expect(s.face.midToLower).toBeCloseTo(49 / 95, 5);
+  // lower lip bottom (y 167) to chin (y 240) over nose base (145) to chin
+  expect(s.face.chinToLower).toBeCloseTo(73 / 95, 5);
   // jaw angles on the oval at 120°/240°: 2 * 80 * sin(60°) wide
   expect(s.face.jawToFace).toBeCloseTo((2 * 80 * Math.sin(Math.PI / 3)) / 160, 5);
 });

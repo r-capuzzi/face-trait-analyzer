@@ -66,13 +66,14 @@ export default function GeneticsDetails({ content, order, cite }) {
       <ol className="sources">
         {[...order.keys()].map((k) => {
           const src = content.sources[k];
-          // a few journals don't issue DOIs; those sources carry a URL instead
-          const href = src.doi ? `https://doi.org/${src.doi}` : src.url;
+          // a few journals don't issue DOIs (and database entries have none);
+          // those sources carry a URL instead. encodeURI: some old DOIs contain <>.
+          const href = src.doi ? `https://doi.org/${encodeURI(src.doi)}` : src.url;
           return (
             <li key={k} id={`src-${content.id}-${k}`}>
               {src.citation}{" "}
               <a href={href} target="_blank" rel="noreferrer">
-                {src.doi ? `doi:${src.doi}` : "full text"}
+                {src.doi ? `doi:${src.doi}` : (src.linkLabel ?? "full text")}
               </a>
             </li>
           );

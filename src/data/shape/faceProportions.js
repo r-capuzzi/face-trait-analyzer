@@ -34,6 +34,13 @@ const faceProportions = {
       format: pct,
       describe: (v) => `Across its angles, your jaw is about ${pct(v)} as wide as the widest part of your face.`,
     },
+    {
+      key: "chinToLower",
+      label: "Chin height",
+      format: pct,
+      describe: (v) =>
+        `From the bottom of your lower lip to the tip of your chin is ${pct(v)} of your lower face (the base of the nose to the chin).`,
+    },
   ],
 
   mechanism: [

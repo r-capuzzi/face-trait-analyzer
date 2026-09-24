@@ -29,7 +29,7 @@ Eye, nose and lip proportions come straight from landmark geometry ([`faceShape.
 
 | Feature | Measures |
 |---|---|
-| Face proportions | face width ÷ height (nasal root to chin), midface ÷ lower face (with the "equal thirds" canon), jaw width ÷ face width |
+| Face proportions | face width ÷ height (nasal root to chin), midface ÷ lower face (with the "equal thirds" canon), jaw width ÷ face width, chin height (lower lip to chin) ÷ lower face |
 | Eyes | openness (height ÷ width), corner tilt (degrees), spacing (inner-corner gap ÷ eye width) |
 | Nose | width at the nose wings ÷ eye gap, and ÷ face width |
 | Lips | mouth width ÷ nose width, lower ÷ upper lip height, lip height ÷ mouth width, Cupid's bow depth |
@@ -49,7 +49,30 @@ There are no "normal ranges" or wide/narrow labels, because published facial nor
 
 ### What a photo can't measure
 
-Hair texture and freckles don't show up reliably in photos: styling and lighting change how curl looks, and resolution, makeup and filters hide freckles. These cards ask you to pick yours, then explain the genetics (TCHH, WNT10A, OFCC1 and PRSS53 for hair shape; MC1R, IRF4 and BNC2 for freckling). Nothing in this section comes from the photo.
+Some traits don't show up reliably in a photo, so these cards ask you to pick yours and then explain the genetics. Nothing in this section comes from the photo.
+
+| Trait | Why it isn't measured | What the genetics says |
+|---|---|---|
+| Hair texture | styling and lighting change how curl looks | TCHH, WNT10A, OFCC1, PRSS53: polygenic |
+| Widow's peak | the 256×256 hair mask is too coarse to trace a small V | first genome-wide study only in 2022 (Wang): two regions, and a DNA predictor barely better than chance (AUC 0.56–0.60) |
+| Freckles | resolution, makeup and filters hide them | MC1R, IRF4, BNC2 |
+| Dimples | cheek dimples show only mid-smile | chin dimples: about 57 regions in a 71,000-person study (Pickrell 2016); cheek dimples: no genome-wide study in the GWAS Catalog, just an anatomy finding (a split smile muscle, Pessa 1998) |
+| Earlobes | front-facing photos hide them; studies photograph ears from the side | 49 regions in 74,660 people (Shaffer 2017), not the single gene classrooms teach |
+
+Three of these (earlobes, dimples, widow's peak) are classic "one gene, dominant or recessive" classroom examples. Each card explains what the studies actually found.
+
+A test ([`content.test.js`](src/data/content.test.js)) checks every card's citations: nothing cites a source that isn't listed, nothing lists a source it never cites, and every source has a link. Its first run found an eye-color source that was listed but never shown.
+
+### Color correction
+
+Warm or colored light tints every color the app measures. If something in the photo should be white or gray, you can click it (or move a crosshair with the arrow keys and press Enter). The app then removes the tint and re-measures, without running the face models again:
+
+- **Method:** per-channel gains in linear light that make the picked spot neutral at its own brightness (a white-patch, von Kries-style correction; [`whiteBalance.js`](src/lib/whiteBalance.js)). Only the color of the light changes, not the exposure, so lightness-based measures like skin ITA aren't pushed around.
+- **Refusals:** a blown-out spot (its color is lost), a very dark one (mostly noise) or a clearly colored one (a red shirt isn't a gray card) is refused with the reason.
+- **Clipped pixels are left alone.** A channel stuck at 255 only means "at least this bright". Scaling it down would invent a color, and it would hide the pixel from the overexposure check. Testing on a real photo caught exactly that: the "blown out" warning disappeared after a correction until this was fixed.
+- **Undo** and a second pick always start from the original photo, so corrections never stack.
+
+Tests add a warm cast to a synthetic face and check that correcting it with a gray patch brings the iris color back to within ΔE 1.5 of the uncast photo.
 
 ### Privacy, enforced by the browser
 
@@ -77,7 +100,7 @@ The app has been run on MediaPipe's two sample portraits (not in the repo). Eye 
 
 ### What's provisional
 
-The per-pixel eye threshold, the eye's ±0.4 intermediate band, the hair thresholds and the quality limits are physically reasoned starting values, marked `CALIBRATE` in the code. The published photo studies don't give exact cutoffs in open-access text, so these still need calibrating against labeled photos.
+The per-pixel eye threshold, the eye's ±0.4 intermediate band, the hair thresholds, the quality limits and the color-correction limit (how strong a cast it will remove) are physically reasoned starting values, marked `CALIBRATE` in the code. The published photo studies don't give exact cutoffs in open-access text, so these still need calibrating against labeled photos.
 
 ## Development
 

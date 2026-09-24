@@ -85,7 +85,10 @@ const eyeColor = {
   limitations: [
     "Photo colors depend on the light and the camera. Warm indoor light can make blue eyes read greener, and dim light can make any eye read darker.",
     "Colored contact lenses are measured as they look. Use \"Correct it\" if that applies.",
-    "Real iris color is continuous. Three categories are a simplification that researchers also use (Edwards 2016).",
+    {
+      text: "Real iris color is continuous: measured in CIELAB color coordinates, irises show variation that categories like \"brown\", \"blue\" and \"green\" miss. The three categories here are a simplification.",
+      cite: ["edwards2016"],
+    },
   ],
 
   heterochromia:

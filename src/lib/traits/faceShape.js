@@ -102,6 +102,9 @@ export function measureFaceShape(face) {
   const faceHeight = menton.v - nasion.v; // nasal root to chin: the face below the brows
   const midface = subnasale.v - nasion.v;
   const lowerFace = menton.v - subnasale.v;
+  // chin height: from the bottom edge of the lower lip down to the chin
+  const lipBottom = P(LIP_MIDLINE.lowerBottom);
+  const chinHeight = menton.v - lipBottom.v;
   const jawR = P(JAW_ANGLES.right);
   const jawL = P(JAW_ANGLES.left);
   const jawWidth = Math.abs(jawL.u - jawR.u);
@@ -151,6 +154,7 @@ export function measureFaceShape(face) {
       widthToHeight: ratio(faceWidth, faceHeight),
       midToLower: ratio(midface, lowerFace),
       jawToFace: ratio(jawWidth, faceWidth),
+      chinToLower: ratio(chinHeight, lowerFace),
       notes: [
         (bs.jawOpen ?? 0) > EXPRESSION.jawOpenFace &&
           "Your mouth is open (even slightly, as in a toothy smile), which lengthens the lower face.",
@@ -164,7 +168,8 @@ export function measureFaceShape(face) {
       nose: { from: P(NOSE_ALAR.right), to: P(NOSE_ALAR.left) },
       mouth: { from: mouthR, to: mouthL },
       lips: { from: P(LIP_MIDLINE.upperTop), to: P(LIP_MIDLINE.lowerBottom) },
-      faceHeight: { from: nasion, to: menton, mark: subnasale },
+      // ticks: base of the nose, bottom of the lower lip (where the chin starts)
+      faceHeight: { from: nasion, to: menton, marks: [subnasale, lipBottom] },
       jaw: { from: jawR, to: jawL },
       frame: f,
     },

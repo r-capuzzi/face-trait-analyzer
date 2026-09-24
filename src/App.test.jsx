@@ -144,6 +144,31 @@ test("self-reported traits say they don't use the photo, and explain whatever yo
   expect(within(freckles).getByText(/MC1R, the gene best known for red hair/)).toBeInTheDocument();
 });
 
+test("the classroom 'single-gene' traits explain what the studies actually found", async () => {
+  mockPipeline({ faces: [{ points: blueFace.points, blendshapes: {}, matrix: null }] });
+  const user = await upload();
+
+  const ears = await screen.findByRole("article", { name: "Earlobes" });
+  await user.selectOptions(within(ears).getByRole("combobox"), "attached");
+  expect(within(ears).getByText(/found 49 DNA regions/)).toBeInTheDocument();
+
+  // chin and cheek dimples have very different evidence behind them
+  const dimples = screen.getByRole("article", { name: "Dimples" });
+  await user.selectOptions(within(dimples).getByRole("combobox"), "chin");
+  expect(within(dimples).getByText(/about 57 DNA regions/)).toBeInTheDocument();
+  await user.selectOptions(within(dimples).getByRole("combobox"), "cheek");
+  expect(within(dimples).getByText(/no genetic study listed/)).toBeInTheDocument();
+
+  const peak = screen.getByRole("article", { name: "Widow's peak" });
+  await user.selectOptions(within(peak).getByRole("combobox"), "yes");
+  expect(within(peak).getByText(/a little better than a coin toss/)).toBeInTheDocument();
+  // database sources link with their own label rather than "full text"
+  expect(within(dimples).getByRole("link", { name: "catalog entry" })).toHaveAttribute(
+    "href",
+    "https://www.ebi.ac.uk/gwas/studies/GCST003989"
+  );
+});
+
 test("a photo with no face shows a helpful error instead of results", async () => {
   mockPipeline({ faces: [] });
   await upload();
@@ -155,4 +180,47 @@ test("an unreadable HEIC photo explains how to convert it", async () => {
   loadImageFile.mockRejectedValue(new ImageLoadError("heic", "This browser can't open HEIC photos."));
   await upload();
   expect(await screen.findByRole("alert")).toHaveTextContent(/HEIC/);
+});
+
+describe("color correction", () => {
+  // a fresh face per test: the correction tests paint into the image
+  function faceWithCard(grayCardAtCenter) {
+    const face = syntheticFace({ right: BLUE, left: BLUE });
+    const { data, width } = face.imageData;
+    if (grayCardAtCenter) {
+      // a gray card between the eyes, where the keyboard crosshair starts
+      for (let y = 85; y < 115; y++) for (let x = 185; x < 215; x++) data.set([150, 150, 150, 255], (y * width + x) * 4);
+    }
+    return face;
+  }
+
+  test("picking a gray spot re-measures the colors, and can be undone", async () => {
+    const face = faceWithCard(true);
+    mockPipeline({ faces: [{ points: face.points, blendshapes: {}, matrix: null }], imageData: face.imageData });
+    const user = await upload();
+    await user.click(await screen.findByRole("button", { name: "Correct the colors" }));
+    // the photo takes focus so the crosshair can be moved from the keyboard
+    const photo = screen.getByLabelText(/Move the crosshair with the arrow keys/);
+    expect(photo).toHaveFocus();
+    await user.keyboard("{Enter}");
+
+    expect(screen.getByText(/Colors corrected for the lighting/)).toBeInTheDocument();
+    expect(screen.getByText(/Colors below are corrected for the lighting/)).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Undo" }));
+    expect(screen.getByRole("button", { name: "Correct the colors" })).toBeInTheDocument();
+    expect(screen.queryByText(/Colors below are corrected/)).not.toBeInTheDocument();
+  });
+
+  test("a colored spot is refused with a reason, and Escape cancels", async () => {
+    const face = faceWithCard(false); // the crosshair starts on skin, which isn't neutral
+    mockPipeline({ faces: [{ points: face.points, blendshapes: {}, matrix: null }], imageData: face.imageData });
+    const user = await upload();
+    await user.click(await screen.findByRole("button", { name: "Correct the colors" }));
+    await user.keyboard("{Enter}");
+    expect(screen.getByRole("alert")).toHaveTextContent(/clearly colored/);
+    // still picking: nothing was changed
+    expect(screen.queryByText(/Colors below are corrected/)).not.toBeInTheDocument();
+    await user.keyboard("{Escape}");
+    expect(screen.getByRole("button", { name: "Correct the colors" })).toBeInTheDocument();
+  });
 });

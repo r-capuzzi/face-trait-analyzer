@@ -1,7 +1,8 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { loadImageFile } from "../lib/imageLoad";
 import { getVision } from "../lib/vision";
 import { analyze } from "../lib/analyze";
+import { applyGains, gainsFromReference } from "../lib/whiteBalance";
 
 // status: idle -> loading-image -> loading-models -> analyzing -> done | error
 const IDLE = { status: "idle" };
@@ -18,6 +19,11 @@ const nextPaint = () =>
 
 export function useAnalysis() {
   const [state, setState] = useState(IDLE);
+  // the latest committed state, for event handlers (see correctColors)
+  const latest = useRef(state);
+  useEffect(() => {
+    latest.current = state;
+  }, [state]);
   // Each run gets an id; results from a superseded run (user picked another
   // photo mid-analysis) are dropped instead of overwriting the newer one.
   const runId = useRef(0);
@@ -40,7 +46,9 @@ export function useAnalysis() {
       const result = analyze(image, detection);
       if (stale()) return;
 
-      setState({ status: "done", image, result });
+      // detection is kept so a color correction can re-measure without
+      // running the models again (landmarks don't depend on color)
+      setState({ status: "done", image, result, detection, original: { image, result } });
     } catch (err) {
       if (stale()) return;
       if (!err.code) console.error(err); // expected errors (no face, HEIC) aren't bugs
@@ -53,10 +61,47 @@ export function useAnalysis() {
     }
   }, []);
 
+  // Re-measure with the lighting's color cast removed, using the spot at
+  // (x, y) - image pixels - as the neutral reference. Always computed from
+  // the original photo, so a second pick replaces the first instead of
+  // stacking on top of it. Reads the latest state from a ref rather than
+  // inside a setState updater: updaters must stay cheap and pure (React may
+  // call them twice), and re-analyzing is neither. Returns whether the spot
+  // was usable.
+  const correctColors = useCallback((x, y) => {
+    const s = latest.current;
+    if (s.status !== "done") return false;
+    const { image } = s.original;
+    const wb = gainsFromReference(image.imageData, x, y);
+    if (!wb.ok) {
+      setState({ ...s, correctionError: wb.reason });
+      return false;
+    }
+    const corrected = { ...image, imageData: applyGains(image.imageData, wb.gains) };
+    setState({
+      ...s,
+      image: corrected,
+      result: analyze(corrected, s.detection),
+      correction: wb.reference,
+      correctionError: null,
+    });
+    return true;
+  }, []);
+
+  const clearCorrectionError = useCallback(() => {
+    setState((s) => (s.correctionError ? { ...s, correctionError: null } : s));
+  }, []);
+
+  const undoCorrection = useCallback(() => {
+    setState((s) =>
+      s.status === "done" ? { ...s, ...s.original, correction: null, correctionError: null } : s
+    );
+  }, []);
+
   const reset = useCallback(() => {
     runId.current++;
     setState(IDLE);
   }, []);
 
-  return { state, analyzeFile, reset };
+  return { state, analyzeFile, reset, correctColors, undoCorrection, clearCorrectionError };
 }

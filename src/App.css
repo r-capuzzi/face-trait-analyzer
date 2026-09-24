@@ -306,10 +306,20 @@
     grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
     align-items: start;
   }
-  /* keep the annotated photo in view while reading the cards */
+  /* Keep the annotated photo in view while reading the cards. A sticky
+     panel taller than the window can never be scrolled to its bottom, so
+     the photo shrinks to leave room for the controls under it (~360 px),
+     and the panel scrolls on its own if they still don't fit (e.g. on a
+     768 px laptop screen with an error message showing). */
   .results__photo {
     position: sticky;
     top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .results__photo .photo {
+    max-height: max(300px, calc(100vh - 430px));
   }
 }
 .results__traits {
@@ -332,6 +342,54 @@
   object-fit: contain;
   border-radius: calc(var(--radius) - 8px);
   background: var(--surface-2);
+}
+
+.photo.is-picking {
+  cursor: crosshair;
+}
+
+/* color correction: pick a white or gray spot on the photo */
+.correct {
+  display: grid;
+  gap: 10px;
+  margin: 14px 0;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+.correct.is-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--ok-bg);
+}
+.correct__text {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.correct__text strong {
+  color: var(--text);
+}
+.correct__text .icon {
+  flex: none;
+  margin-top: 1px;
+  color: var(--accent);
+}
+.correct__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.correct .callout {
+  margin: 0;
+}
+.button--small {
+  justify-self: start;
+  padding: 7px 14px;
+  font-size: 0.88rem;
 }
 
 .chips {

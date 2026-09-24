@@ -9,6 +9,7 @@ import SkinDetails from "./components/SkinDetails";
 import QualityBanner from "./components/QualityBanner";
 import AboutSection from "./components/AboutSection";
 import ShapeCard from "./components/ShapeCard";
+import ColorCorrection from "./components/ColorCorrection";
 import HeroArt from "./components/HeroArt";
 import Icon from "./components/Icon";
 import { useAnalysis } from "./hooks/useAnalysis";
@@ -24,6 +25,9 @@ import hairline from "./data/shape/hairline";
 import facialHair from "./data/shape/facialHair";
 import hairTexture from "./data/traits/hairTexture";
 import freckles from "./data/traits/freckles";
+import widowsPeak from "./data/traits/widowsPeak";
+import dimples from "./data/traits/dimples";
+import earlobes from "./data/traits/earlobes";
 import "./App.css";
 
 // Overlay layers; the dots double as a legend for the colors drawn on the photo.
@@ -64,10 +68,12 @@ const SHAPES = [
 
 // Traits a photo can't measure reliably: the visitor picks theirs and reads
 // the genetics. Nothing here comes from the photo.
-const SELF_REPORTED = [hairTexture, freckles];
+const SELF_REPORTED = [hairTexture, widowsPeak, freckles, dimples, earlobes];
 
 export default function App() {
-  const { state, analyzeFile, reset } = useAnalysis();
+  const { state, analyzeFile, reset, correctColors, undoCorrection, clearCorrectionError } = useAnalysis();
+  // choosing a white/gray spot on the photo for color correction
+  const [picking, setPicking] = useState(false);
   const [layers, setLayers] = useState({ regions: true, shape: true, mask: false, landmarks: false });
   const [overrides, setOverrides] = useState({});
   const busy = ["loading-image", "loading-models", "analyzing"].includes(state.status);
@@ -82,7 +88,13 @@ export default function App() {
 
   function startOver() {
     setOverrides({});
+    setPicking(false);
     reset();
+  }
+
+  function startPicking() {
+    clearCorrectionError();
+    setPicking(true);
   }
 
   const setOverride = (trait) => (value) => setOverrides((o) => ({ ...o, [trait]: value }));
@@ -121,6 +133,7 @@ export default function App() {
           <UploadPanel
             onFile={(file) => {
               setOverrides({});
+              setPicking(false);
               analyzeFile(file);
             }}
             disabled={busy}
@@ -140,7 +153,15 @@ export default function App() {
             </h2>
             <aside className="results__photo">
               <div className="photo-frame">
-                <PhotoOverlay image={state.image} result={result} layers={layers} />
+                <PhotoOverlay
+                  image={state.image}
+                  result={result}
+                  layers={layers}
+                  picking={picking}
+                  onPick={(x, y) => correctColors(x, y) && setPicking(false)}
+                  onCancel={() => setPicking(false)}
+                  marker={state.correction}
+                />
               </div>
               <fieldset className="chips">
                 <legend>Show on photo</legend>
@@ -160,6 +181,14 @@ export default function App() {
                   </label>
                 ))}
               </fieldset>
+              <ColorCorrection
+                picking={picking}
+                corrected={Boolean(state.correction)}
+                error={state.correctionError}
+                onStart={startPicking}
+                onCancel={() => setPicking(false)}
+                onUndo={undoCorrection}
+              />
               <button type="button" className="button button--ghost" onClick={startOver}>
                 <Icon name="refresh" size={18} /> Analyze another photo
               </button>
@@ -167,6 +196,12 @@ export default function App() {
 
             <div className="results__traits">
               <SectionHeader number="01" title="Color" lede="Pigment in your eyes, hair and skin." />
+              {state.correction && (
+                <p className="callout callout--ok">
+                  <Icon name="target" size={18} /> Colors below are corrected for the lighting, using the white or
+                  gray spot you picked on your photo.
+                </p>
+              )}
               <QualityBanner issues={result.quality.issues} warnings={result.warnings} />
               {TRAITS.map(({ key, content, details }) => (
                 <TraitCard

@@ -14,6 +14,9 @@ const STYLE = {
   lips: { icon: "lips", accent: "shape", kicker: "Shape" },
   texture: { icon: "hair", accent: "hair", kicker: "You tell us" },
   freckles: { icon: "freckles", accent: "skin", kicker: "You tell us" },
+  peak: { icon: "peak", accent: "hair", kicker: "You tell us" },
+  dimples: { icon: "dimple", accent: "shape", kicker: "You tell us" },
+  earlobes: { icon: "ear", accent: "shape", kicker: "You tell us" },
 };
 
 export const accentOf = (id) => STYLE[id]?.accent ?? "shape";
