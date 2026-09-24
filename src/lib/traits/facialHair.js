@@ -5,12 +5,19 @@
 // beards are often labeled as hair rather than face skin.
 //
 // The zones stop short of the shadow under the lower lip, the nostrils and
-// the jawline's edge, which would otherwise read as dark "hair". The clean-
-// shaven test photos must read as (near) zero.
+// the jawline's edge, which would otherwise read as dark "hair", and only
+// pixels inside the face outline count: long scalp hair framing the chin is
+// labeled hair by the segmenter, and a wide smile stretches the zones (sized
+// from the mouth) out past the jaw. That was a false "light beard" on a
+// smiling, long-haired test photo. The clean-shaven test photos must read as
+// (near) zero.
 
 import { MASK } from "../maskCategories";
 import { isClipped, maskAt, samplePixels } from "../pixels";
+import { offAxisDegrees } from "../quality";
+import { MAX_TURN_DEG } from "./faceShape";
 import {
+  FACE_OVAL,
   JAW_ANGLES,
   LIP_MIDLINE,
   MIDLINE,
@@ -24,8 +31,8 @@ import {
 } from "../regions";
 import { median, trimByPercentile } from "../stats";
 
-// Provisional (CALIBRATE): validated only for false positives on two
-// clean-shaven photos - there's no bearded test photo yet.
+// Provisional (CALIBRATE): checked on four clean-shaven faces (all "none")
+// and one real beard (close-trimmed stubble covering the jaw: "full").
 export const BEARD_RULE = {
   // darker than the forehead by the larger of these: stricter than the
   // brow rule because lower-face shadows (folds, under the lip) are deeper
@@ -43,7 +50,7 @@ export const BEARD_RULE = {
 
 const quad = (f, corners) => corners.map((c) => fromFrame(f, c));
 
-export function beardZones(points) {
+export function beardZones(points, { smiling = false } = {}) {
   const f = faceFrame(points);
   const P = (i) => toFrame(f, points[i]);
   const sn = P(MIDLINE.subnasale);
@@ -58,7 +65,9 @@ export function beardZones(points) {
   // Centered on the mouth, not the pupils' midpoint: with the head turned
   // even slightly the two differ, and the zones must stay over the lips.
   const mouthMid = (mR.u + mL.u) / 2;
-  const half = 0.45 * Math.abs(mL.u - mR.u); // ~90% of the mouth's width
+  // ~90% of the mouth's width; a smile stretches the mouth into the cheek
+  // folds, so then only ~70%
+  const half = (smiling ? 0.35 : 0.45) * Math.abs(mL.u - mR.u);
 
   // mustache: between the nose base and the upper lip; starts 25% below the
   // nose base to skip the nostrils
@@ -134,12 +143,12 @@ function localTexture(imageData, box, radius) {
   return { sd, bw };
 }
 
-function zonePixels(imageData, mask, poly, radius) {
+function zonePixels(imageData, mask, poly, radius, face) {
   const { width: w, height: h } = imageData;
   const box = polygonBounds(poly);
   const { sd } = localTexture(imageData, box, radius);
   return samplePixels(imageData, box, (x, y) => {
-    if (!pointInPolygon(x, y, poly)) return false;
+    if (!pointInPolygon(x, y, poly) || !pointInPolygon(x, y, face)) return false;
     const c = maskAt(mask, x, y, w, h);
     return c === MASK.FACE_SKIN || c === MASK.HAIR;
   })
@@ -162,7 +171,7 @@ export function beardLevel(share) {
 // jaw-side zones - which read as hair on a clean-shaven test photo.
 const SMILE_SCORE = 0.5;
 
-export function measureFacialHair(imageData, mask, points, blendshapes = {}) {
+export function measureFacialHair(imageData, mask, points, blendshapes = {}, matrix = null) {
   const { width: w, height: h } = imageData;
   const smiling = ((blendshapes.mouthSmileLeft ?? 0) + (blendshapes.mouthSmileRight ?? 0)) / 2 > SMILE_SCORE;
   // Reference skin: the upper-cheek patches. They're lit much like the lower
@@ -193,9 +202,10 @@ export function measureFacialHair(imageData, mask, points, blendshapes = {}) {
   const radius = Math.max(2, Math.round(faceFrame(points).iod / 40));
   const isHair = (p) => p.maskHair || (p.lab.L < cutoff && p.texture >= BEARD_RULE.minTexture);
 
-  const zones = beardZones(points);
+  const zones = beardZones(points, { smiling });
+  const outline = FACE_OVAL.map((i) => points[i]);
   const measureZone = (poly) => {
-    const px = zonePixels(imageData, mask, poly, radius);
+    const px = zonePixels(imageData, mask, poly, radius, outline);
     return px.length >= BEARD_RULE.minPixels
       ? { share: px.filter(isHair).length / px.length, hair: px.filter(isHair), count: px.length }
       : null;
@@ -213,6 +223,7 @@ export function measureFacialHair(imageData, mask, points, blendshapes = {}) {
   const total = parts.reduce((s, p) => s + p.count, 0);
   const coverage = parts.reduce((s, p) => s + p.share * p.count, 0) / total;
   const sideCount = sides.reduce((s, p) => s + p.count, 0);
+  const turn = offAxisDegrees(matrix);
   return {
     status: "ok",
     coverage,
@@ -220,9 +231,16 @@ export function measureFacialHair(imageData, mask, points, blendshapes = {}) {
     mustache: mustache?.share ?? null,
     chin: chin?.share ?? null,
     sides: sides.length ? sides.reduce((s, p) => s + p.share * p.count, 0) / sideCount : null,
-    notes: smiling
-      ? ["You're smiling, so the areas beside your mouth (where smile lines form) were left out; only the mustache and chin areas were measured."]
-      : [],
+    notes: [
+      smiling &&
+        "You're smiling, so the areas beside your mouth (where smile lines form) were left out; only the mustache and chin areas were measured.",
+      // a tilted-back or turned head brings the jaw's shadowed underside
+      // into the zones (22% of a clean-shaven chin on a test photo shot
+      // from below)
+      turn !== null &&
+        turn > MAX_TURN_DEG &&
+        "Your head is tilted or turned, so shadows under your jaw may have been counted. A straight-on photo gives a truer reading.",
+    ].filter(Boolean),
     regions: {
       zones: [zones.mustache, zones.chin, ...(smiling ? [] : zones.sides)],
       hair: parts.flatMap((p) => p.hair),

@@ -77,7 +77,7 @@ export function analyze(image, detection) {
   traits.shape = isolated(() => measureFaceShape(face));
   traits.brows = isolated(() => measureEyebrows(imageData, mask, face.points));
   traits.hairline = isolated(() => measureHairline(imageData, mask, face.points));
-  traits.beard = isolated(() => measureFacialHair(imageData, mask, face.points, face.blendshapes));
+  traits.beard = isolated(() => measureFacialHair(imageData, mask, face.points, face.blendshapes, face.matrix));
 
   const quality = isolated(() => assessQuality({ imageData, face, traits }), { issues: [] });
   for (const [name, t] of Object.entries(traits)) {

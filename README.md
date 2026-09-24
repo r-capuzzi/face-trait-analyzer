@@ -37,7 +37,9 @@ Eye, nose and lip proportions come straight from landmark geometry ([`faceShape.
 | Forehead & hairline | hairline to nasal root ÷ midface, with the canon's "top third"; bangs, side parts, hats and shaved heads are detected and reported instead of measured |
 | Facial hair | share of the mustache, chin and jaw zones that reads as hair (darker than the upper cheeks **and** hair-textured, or labeled hair by the segmenter) |
 
-Facial hair required the most care. The first version read a clean-shaven, smiling face as "light" facial hair, because it counted shadows and smile lines. Three changes fixed it: comparing against the cheeks instead of the brightly lit forehead, requiring strand-like texture (so smooth shadows don't count), and skipping the jaw-side zones during a smile. Both clean-shaven photos now read "none" (6% and 2%), and painted-on beards read "moderate" (sparse) and "full" (dense). It hasn't been tested on a real bearded photo yet.
+Facial hair required the most care. The first version read a clean-shaven, smiling face as "light" facial hair, because it counted shadows and smile lines. Three changes fixed it: comparing against the cheeks instead of the brightly lit forehead, requiring strand-like texture (so smooth shadows don't count), and skipping the jaw-side zones during a smile. Painted-on beards read "moderate" (sparse) and "full" (dense).
+
+The first real bearded photo (close-trimmed stubble over the whole jaw) reads "full coverage" (67%): the card measures how much area is covered, not how long the hair is, and says so. Two more sample photos then caught a false positive: a smiling woman with long hair read as "light" (13%). The zones are sized from the mouth, a wide smile stretched them past the jawline, and her scalp hair there counts as hair. Now only pixels inside the face outline count, and the mustache and chin zones narrow during a smile. All four clean-shaven faces read "none" (1.5–11.6%). A head tilted back, as in a photo taken from below, shows the shadow under the jaw, so the card adds a note when the head is turned or tilted more than 20°.
 
 Each landmark not taken from one of MediaPipe's contour constants (nasal root 168, nose base 2, chin 152, jaw angles 172/397, nose wings 129/358) was checked by plotting the candidates on a test photo.
 
@@ -96,7 +98,13 @@ Two traits never go above "medium":
 
 ### Tested on real photos
 
-The app has been run on MediaPipe's two sample portraits (not in the repo). Eye color came out right on both, and hair color right on one. Testing them led to two changes: salt-and-pepper hair (a colorless mid-gray median) now reads as gray instead of brown, and skin confidence is now capped.
+The app has been run on four of MediaPipe's sample photos (not in the repo), five faces in all. Eye color came out right on the two portraits, and hair color on one. Testing them led to these changes:
+
+- Salt-and-pepper hair (a colorless mid-gray median) now reads as gray instead of brown.
+- Skin confidence is now capped.
+- The facial-hair fixes above.
+
+On the smallest face (a 256 px image, 6 px iris radius) the eyes look gray-green, and the app answers "between brown and green/hazel" at low confidence. A simulation that shrinks painted irises down to a 4 px radius showed that size alone doesn't bias the result. This iris is dark and nearly gray in the photo, and near-gray pixels are classified by lightness, so it sits right on the brown/blue line. Hedging is the honest answer there.
 
 ### What's provisional
 

@@ -4,7 +4,8 @@ import { beardLevel } from "../../lib/traits/facialHair";
 import { FACE_SOURCES } from "./common";
 
 const pct = (v) => `${Math.round(v * 100)}%`;
-const LEVEL = { none: "None visible", light: "Light", moderate: "Moderate", full: "Full" };
+// coverage, not length: close-trimmed stubble over the whole jaw is "full"
+const LEVEL = { none: "None visible", light: "Light", moderate: "Moderate", full: "Full coverage" };
 
 const facialHair = {
   id: "beard",
@@ -14,7 +15,12 @@ const facialHair = {
       key: "coverage",
       label: "Overall",
       format: (v) => LEVEL[beardLevel(v)],
-      describe: (v) => `${pct(v)} of the mustache, chin and jaw areas reads as hair.`,
+      describe: (v) =>
+        `${pct(v)} of the mustache, chin and jaw areas reads as hair. This is how much area is covered, not how long the hair is.` +
+        // the four clean-shaven test faces read 1.5-11.6% (shadows, skin texture)
+        (beardLevel(v) === "none"
+          ? " Shadows and skin texture alone read as up to about 12% on clean-shaven faces, so this counts as none."
+          : ""),
     },
     {
       key: "mustache",
