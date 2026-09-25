@@ -1,5 +1,5 @@
-# Runs the unit/component tests and a production build on every PR and
-# every push to master, same as body-composition-visualizer's frontend job.
+# Runs the unit/component tests, a production build and the end-to-end
+# tests on every PR and every push to master.
 name: tests
 
 on:
@@ -11,11 +11,31 @@ jobs:
   app:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24" # matches local dev
           cache: npm
       - run: npm ci
       - run: npm test
       - run: npm run build
+
+  # The built app in a real browser with the real models and real photos
+  # (see playwright.config.js). Uses the runner's preinstalled Google Chrome,
+  # so there's no browser download.
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "24"
+          cache: npm
+      - run: npm ci
+      - run: npm run test:e2e
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: e2e-traces
+          path: test-results/
+          retention-days: 7
