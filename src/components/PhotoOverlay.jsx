@@ -47,7 +47,7 @@ export default function PhotoOverlay({ image, result, layers, picking = false, o
     };
 
     if (layers.mask) {
-      ctx.drawImage(maskToCanvas(mask), 0, 0, image.width, image.height);
+      ctx.drawImage(maskToCanvas(mask, image), 0, 0, image.width, image.height);
     }
     if (layers.landmarks) {
       dot(
@@ -209,7 +209,22 @@ export default function PhotoOverlay({ image, result, layers, picking = false, o
   );
 }
 
-function maskToCanvas(mask) {
+// The whole-photo mask, with the sharper head crop (if any) painted over
+// its own area.
+function maskToCanvas(mask, image) {
+  const c = tintMask(mask);
+  if (mask.crop) {
+    const ctx = c.getContext("2d");
+    const sx = c.width / image.width;
+    const sy = c.height / image.height;
+    const { x0, y0, x1, y1 } = mask.crop;
+    ctx.clearRect(x0 * sx, y0 * sy, (x1 - x0) * sx, (y1 - y0) * sy);
+    ctx.drawImage(tintMask(mask.crop), x0 * sx, y0 * sy, (x1 - x0) * sx, (y1 - y0) * sy);
+  }
+  return c;
+}
+
+function tintMask(mask) {
   const c = document.createElement("canvas");
   c.width = mask.width;
   c.height = mask.height;

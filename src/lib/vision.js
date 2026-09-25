@@ -62,12 +62,7 @@ async function createVision() {
   return { detect: (image) => detect(faceLandmarker, segmenter, image) };
 }
 
-// image: canvas/ImageData/ImageBitmap. Returns plain JS objects only - no
-// MediaPipe handles escape this function, so nothing needs closing later.
-function detect(faceLandmarker, segmenter, image) {
-  const { width, height } = image;
-  const faces = faceLandmarker.detect(image);
-
+function segmentToMask(segmenter, image) {
   const seg = segmenter.segment(image);
   const categoryMask = seg.categoryMask;
   const mask = {
@@ -76,18 +71,115 @@ function detect(faceLandmarker, segmenter, image) {
     height: categoryMask.height,
   };
   seg.close();
+  return mask;
+}
 
-  return {
-    width,
-    height,
-    mask,
-    faces: faces.faceLandmarks.map((landmarks, i) => ({
+// The segmenter shrinks whatever it's given to 256x256. When the face is
+// small in the frame - a photo taken from 1.5 m, as the tips suggest - that
+// leaves a few dozen mask pixels across the face, and hair, brow and skin
+// edges come out blocky. So it runs a second time on a crop around the
+// largest face, big enough for every trait's sampling (hair is sampled up
+// to 3 pupil spacings out and 4.5 down), and pixels.maskAt reads that
+// sharper crop wherever it covers. A face that already fills half the
+// photo gains little from it and is skipped.
+export const HEAD_CROP = { side: 3.2, up: 3.2, down: 4.8, maxShare: 0.5 };
+
+export function headCropBox(points, width, height) {
+  const r = points[468];
+  const l = points[473];
+  const iod = Math.hypot(l.x - r.x, l.y - r.y);
+  const mid = { x: (r.x + l.x) / 2, y: (r.y + l.y) / 2 };
+  const x0 = Math.max(0, Math.floor(mid.x - HEAD_CROP.side * iod));
+  const x1 = Math.min(width, Math.ceil(mid.x + HEAD_CROP.side * iod));
+  const y0 = Math.max(0, Math.floor(mid.y - HEAD_CROP.up * iod));
+  const y1 = Math.min(height, Math.ceil(mid.y + HEAD_CROP.down * iod));
+  if (x1 - x0 < 16 || y1 - y0 < 16) return null;
+  if ((x1 - x0) * (y1 - y0) > HEAD_CROP.maxShare * width * height) return null;
+  return { x0, y0, x1, y1 };
+}
+
+function cropMask(segmenter, image, box) {
+  const canvas = document.createElement("canvas");
+  canvas.width = box.x1 - box.x0;
+  canvas.height = box.y1 - box.y0;
+  canvas.getContext("2d").drawImage(image, box.x0, box.y0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+  return { ...box, ...segmentToMask(segmenter, canvas) };
+}
+
+// MediaPipe's face detector is built for faces that fill a good part of the
+// frame: on the test photos it found nothing once the pupils were closer
+// together than about 6-7% of the image width - a phone photo taken from
+// 1.5 m (as the tips suggest) without zooming in. So when the whole photo
+// finds no face, it looks again in zoomed-in windows - halves, then thirds
+// of the photo, overlapping by half so a face on a boundary is still whole
+// in one of them - and maps what it finds back to the whole photo.
+export const ZOOM_STEPS = [2, 3];
+
+export function zoomWindows(width, height, zoom) {
+  const w = Math.round(width / zoom);
+  const h = Math.round(height / zoom);
+  const positions = 2 * zoom - 1; // a window every half window
+  const windows = [];
+  for (let j = 0; j < positions; j++) {
+    for (let i = 0; i < positions; i++) {
+      windows.push({
+        x0: Math.round((i * (width - w)) / (positions - 1)),
+        y0: Math.round((j * (height - h)) / (positions - 1)),
+        w,
+        h,
+        zoom,
+      });
+    }
+  }
+  return windows;
+}
+
+// landmarker output for `frame` (the whole photo, or a window of it) ->
+// plain faces in whole-photo pixel coordinates
+function toFaces(result, frame) {
+  return result.faceLandmarks.map((landmarks, i) => {
+    const matrix = result.facialTransformationMatrixes[i]?.data ? [...result.facialTransformationMatrixes[i].data] : null;
+    // distance is estimated from how much of the frame the face fills, and
+    // a window makes it fill `zoom` times more
+    if (matrix && frame.zoom !== 1) matrix[14] *= frame.zoom;
+    return {
       // normalized [0,1] -> pixel coordinates of our (downscaled) canvas
-      points: landmarks.map((p) => ({ x: p.x * width, y: p.y * height })),
-      blendshapes: Object.fromEntries(
-        (faces.faceBlendshapes[i]?.categories ?? []).map((c) => [c.categoryName, c.score])
-      ),
-      matrix: faces.facialTransformationMatrixes[i]?.data ?? null,
-    })),
-  };
+      points: landmarks.map((q) => ({ x: frame.x0 + q.x * frame.w, y: frame.y0 + q.y * frame.h })),
+      blendshapes: Object.fromEntries((result.faceBlendshapes[i]?.categories ?? []).map((c) => [c.categoryName, c.score])),
+      matrix,
+    };
+  });
+}
+
+function detectFaces(faceLandmarker, image) {
+  const { width, height } = image;
+  const whole = toFaces(faceLandmarker.detect(image), { x0: 0, y0: 0, w: width, h: height, zoom: 1 });
+  if (whole.length) return whole;
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  for (const zoom of ZOOM_STEPS) {
+    for (const win of zoomWindows(width, height, zoom)) {
+      canvas.width = win.w;
+      canvas.height = win.h;
+      ctx.drawImage(image, win.x0, win.y0, win.w, win.h, 0, 0, win.w, win.h);
+      const found = toFaces(faceLandmarker.detect(canvas), win);
+      if (found.length) return found;
+    }
+  }
+  return [];
+}
+
+// image: canvas/ImageData/ImageBitmap. Returns plain JS objects only - no
+// MediaPipe handles escape this function, so nothing needs closing later.
+function detect(faceLandmarker, segmenter, image) {
+  const { width, height } = image;
+  const faces = detectFaces(faceLandmarker, image);
+  const mask = segmentToMask(segmenter, image);
+
+  const iod = (pts) => Math.hypot(pts[473].x - pts[468].x, pts[473].y - pts[468].y);
+  const largest = faces.reduce((best, f) => (!best || iod(f.points) > iod(best.points) ? f : best), null);
+  const box = largest && headCropBox(largest.points, width, height);
+  if (box) mask.crop = cropMask(segmenter, image, box);
+
+  return { width, height, mask, faces };
 }

@@ -166,3 +166,26 @@ for (const photo of ["portrait", "business"]) {
     }
   });
 }
+
+// A photo taken from 1.5 m without zooming (as the tips suggest for face
+// shape): the same face, small in a bigger frame. MediaPipe's detector alone
+// found no face once the pupils were closer than ~6% of the width, and the
+// whole-photo mask counted the background as hair; the zoomed search and
+// the head-crop mask (vision.js) fix both.
+const SMALL_IN_FRAME = `(c) => { const k = 2.5; const b = document.createElement("canvas");
+  b.width = Math.round(c.width * k); b.height = Math.round(c.height * k);
+  const x = b.getContext("2d"); x.fillStyle = "#8a8f94"; x.fillRect(0, 0, b.width, b.height);
+  x.drawImage(c, (b.width - c.width) / 2, (b.height - c.height) / 2); return b; }`;
+
+for (const photo of ["business", "portrait"]) {
+  test(`${photo}: a face small in the frame is still found and reads the same`, async ({ app }) => {
+    const base = await baseline(app, photo);
+    await app.analyze(await app.variant(photo, SMALL_IN_FRAME, { name: "from-1.5m.jpg", type: "image/jpeg", quality: 0.9 }));
+    await expect(app.page.locator("#results-heading")).toBeAttached();
+    const far = await app.summary();
+    // the eyes may become too small to measure; everything measured must agree
+    for (const t of COLOR) if (far[t]?.measured) expect(agree(base[t], far[t]), t).toBe(true);
+    expect(far.hair.measured).toBe(true);
+    expect(Math.abs(far.hair.numbers.L - base.hair.numbers.L), "hair lightness").toBeLessThanOrEqual(4);
+  });
+}

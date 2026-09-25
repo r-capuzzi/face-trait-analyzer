@@ -4,8 +4,15 @@
 import { rgbToLab } from "./color";
 
 // Category of the mask pixel under image pixel (x, y). The mask may be a
-// different resolution than the image, so coordinates are rescaled.
+// different resolution than the image, so coordinates are rescaled. Where
+// the sharper head crop (vision.js) covers the point, it's read instead.
 export function maskAt(mask, x, y, imgW, imgH) {
+  const c = mask.crop;
+  if (c && x >= c.x0 && x < c.x1 && y >= c.y0 && y < c.y1) {
+    const cx = Math.min(c.width - 1, Math.floor(((x - c.x0) * c.width) / (c.x1 - c.x0)));
+    const cy = Math.min(c.height - 1, Math.floor(((y - c.y0) * c.height) / (c.y1 - c.y0)));
+    return c.data[cy * c.width + cx];
+  }
   const mx = Math.min(mask.width - 1, Math.floor((x * mask.width) / imgW));
   const my = Math.min(mask.height - 1, Math.floor((y * mask.height) / imgH));
   return mask.data[my * mask.width + mx];
