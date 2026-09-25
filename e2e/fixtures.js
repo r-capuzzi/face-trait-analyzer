@@ -156,10 +156,21 @@ const KEY_OF = {
 // confidence it lists both categories the result sits between.
 export function parseSummary(raw) {
   const text = raw.replace(/\r\n/g, "\n"); // the Windows clipboard adds \r
-  const out = { text, checks: [] };
+  const out = { text, checks: [], shape: {} };
   let section = null;
   for (const line of text.split("\n")) {
     if (/^[A-Z][A-Z ]+$/.test(line)) section = line;
+    // "Face proportions: Width vs. height 1.08×; Jaw vs. face width 79%" ->
+    // shape["Face proportions"]["Width vs. height"] = 1.08
+    const shape = section === "FACE SHAPE" && line.match(/^(\S[^:]*): (.*)$/);
+    if (shape) {
+      out.shape[shape[1]] = Object.fromEntries(
+        shape[2].split("; ").flatMap((part) => {
+          const m = part.match(/^(.*) ([+-]?[\d.]+)(×|%|°)$/);
+          return m ? [[m[1], Number(m[2])]] : [];
+        })
+      );
+    }
     if (section === "PHOTO CHECK" && line.startsWith("- ")) out.checks.push(line.slice(2));
     const m = line.match(/^(Eye color|Hair color|Skin tone): (.*)$/);
     if (!m || section !== "COLOR") continue;

@@ -133,3 +133,36 @@ test("a low-resolution copy doesn't change the answer, it only lowers confidence
     if (half[t]?.measured) expect(agree(base[t], half[t]), t).toBe(true);
   }
 });
+
+// Face shape is ratios within the person's own face, so a mirrored or
+// re-saved copy must give nearly the same numbers. Measured spread on the
+// test photos: 1-5% for proportions, nose and brow arch; the lower/upper
+// lip ratio and the Cupid's bow move ~10% on mirrored copies (the face-mesh
+// model itself isn't perfectly mirror-symmetric around the lips).
+const SHAPE_TOLERANCE = { "Lower vs. upper lip": 0.15, "Cupid's bow": 0.15, default: 0.08 };
+
+for (const photo of ["portrait", "business"]) {
+  test(`${photo}: face-shape ratios survive mirroring and re-compression`, async ({ app }) => {
+    const base = await baseline(app, photo);
+    const variants = [
+      `(c) => { const m = document.createElement("canvas"); m.width = c.width; m.height = c.height;
+        const x = m.getContext("2d"); x.translate(c.width, 0); x.scale(-1, 1); x.drawImage(c, 0, 0); return m; }`,
+      "(c) => c",
+    ];
+    for (const [i, transform] of variants.entries()) {
+      if (i) await app.startOver();
+      await app.analyze(await app.variant(photo, transform, i ? { name: "resaved.jpg", type: "image/jpeg", quality: 0.7 } : {}));
+      const copy = await app.summary();
+      for (const card of ["Face proportions", "Nose width", "Lips and mouth", "Eye shape"]) {
+        for (const [measure, value] of Object.entries(base.shape[card] ?? {})) {
+          const other = copy.shape[card]?.[measure];
+          expect(other, `${card} / ${measure}`).toBeDefined();
+          const tol = SHAPE_TOLERANCE[measure] ?? SHAPE_TOLERANCE.default;
+          // relative for ratios; a degree or two for angles near zero
+          const allowed = measure.includes("tilt") ? 2 : tol * Math.abs(value);
+          expect(Math.abs(other - value), `${card} / ${measure}: ${value} vs ${other}`).toBeLessThanOrEqual(allowed);
+        }
+      }
+    }
+  });
+}

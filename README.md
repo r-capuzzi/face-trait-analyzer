@@ -151,6 +151,8 @@ Each test photo was also run as the kinds of copies phones and apps produce: mir
 - **Warm light went unflagged:** a warm-bulb cast shifted skin by up to 18° ITA without a warning, because the lighting check only fired at sclera b* > 22. It now fires at 14, just above the untinted photos (−1 to 9).
 - **Red hair and exposure:** the red rule used plain chroma, which rises with brightness, so brightened chestnut-brown hair read "red". It now uses C*/(L*+16), which exposure doesn't change.
 
+The face-shape measurements held up in the same test: proportions, nose width, lip fullness, brow arch and hairline moved 1–5% across copies. The exceptions are the lower-to-upper lip ratio and the Cupid's bow, which run about 10% higher on mirrored copies because MediaPipe's face mesh isn't perfectly mirror-symmetric around the lips. An end-to-end test now holds each ratio to those limits.
+
 Glasses are now noticed too. The segmentation model labels eyewear as "accessories"; when that label covers 5% of the band around the eyes, eye-color confidence drops a level and the photo check says why (lenses tint and reflect over the iris). Frames drawn on a test photo covered 18%, and none of the photos without glasses had any.
 
 Exposure still moves skin tone: a photo one stop darker reads about one to two ITA categories darker. Only a color reference card in the photo could remove that, which is why skin confidence stays capped at medium.
