@@ -23,6 +23,8 @@ for (const [key, { file, expect: want }] of Object.entries(PHOTOS)) {
       expect(s.skin.numbers.monk).toBeGreaterThanOrEqual(1);
     }
     if (want.warning) expect(s.checks.join("\n")).toMatch(want.warning);
+    // nobody in these photos wears glasses
+    expect(s.checks.join("\n")).not.toMatch(/glasses/);
 
     expect(app.log.pageErrors).toEqual([]);
     expect(app.log.consoleErrors).toEqual([]);
@@ -84,4 +86,24 @@ test("every section and card renders for a full result", async ({ app }) => {
   // citations resolve to real links
   const links = app.page.locator('a[href^="https://doi.org/"]');
   expect(await links.count()).toBeGreaterThan(10);
+});
+
+test("glasses are noticed, and eye color is trusted less", async ({ app }) => {
+  await app.analyze("business");
+  const bare = await app.summary();
+  await app.startOver();
+  // dark frames around both eyes (iris centers as in iris-color.spec.js)
+  await app.analyze(
+    await app.variant(
+      "business",
+      `(c) => { const x = c.getContext("2d"); x.lineWidth = 7; x.strokeStyle = "#1a1a1a";
+        for (const [cx, cy] of [[444, 267], [562, 260]]) { x.beginPath(); x.roundRect(cx - 48, cy - 30, 96, 62, 18); x.stroke(); }
+        x.beginPath(); x.moveTo(492, 262); x.lineTo(514, 258); x.stroke(); return c; }`,
+      { name: "glasses.png" }
+    )
+  );
+  const withGlasses = await app.summary();
+  expect(withGlasses.checks.join("\n")).toMatch(/wearing glasses/);
+  const rank = ["low", "medium", "high"];
+  expect(rank.indexOf(withGlasses.eye.confidence)).toBeLessThan(rank.indexOf(bare.eye.confidence));
 });

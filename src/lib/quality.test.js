@@ -1,4 +1,5 @@
-import { assessQuality, faceSharpness, sampleSclera } from "./quality";
+import { assessQuality, faceSharpness, glassesShare, sampleSclera } from "./quality";
+import { MASK } from "./maskCategories";
 import { BLUE, syntheticFace } from "../test/syntheticFace";
 
 const ids = (q) => q.issues.map((i) => i.id);
@@ -9,6 +10,7 @@ function run(overrides = {}) {
     imageData,
     face: { points, blendshapes: {}, matrix: null, ...overrides.face },
     traits: overrides.traits ?? {},
+    mask: overrides.mask,
   });
 }
 
@@ -77,3 +79,30 @@ function boxBlur({ width, height, data }, r) {
     }
   }
 }
+
+// a mask the size of the synthetic face with frames drawn around both eyes
+function maskWithFrames(frames) {
+  const W = 400;
+  const H = 200;
+  const data = new Uint8Array(W * H).fill(MASK.FACE_SKIN);
+  if (frames) {
+    for (const cx of [100, 300]) {
+      for (let y = 50; y < 150; y++) {
+        for (let x = cx - 70; x < cx + 70; x++) {
+          const edge = Math.abs(x - cx) > 60 || Math.abs(y - 100) > 40;
+          if (edge) data[y * W + x] = MASK.OTHERS;
+        }
+      }
+    }
+  }
+  return { width: W, height: H, data };
+}
+
+test("glasses (the model's 'accessories' around the eyes) lower eye confidence", () => {
+  const { points } = syntheticFace({ right: BLUE, left: BLUE });
+  expect(glassesShare(maskWithFrames(true), points, 400, 200)).toBeGreaterThan(0.05);
+  expect(glassesShare(maskWithFrames(false), points, 400, 200)).toBe(0);
+  const issue = run({ mask: maskWithFrames(true) }).issues.find((i) => i.id === "glasses");
+  expect(issue.affects).toEqual(["eye"]);
+  expect(ids(run({ mask: maskWithFrames(false) }))).not.toContain("glasses");
+});

@@ -3,8 +3,9 @@
 // the trait modules already refuse to measure what they can't see.
 
 import { chroma } from "./color";
-import { circleBox, isClipped, samplePixels } from "./pixels";
-import { eyeOpening, faceFrame, irisCircle, pointInPolygon } from "./regions";
+import { MASK } from "./maskCategories";
+import { circleBox, isClipped, maskAt, samplePixels } from "./pixels";
+import { eyeOpening, faceFrame, fromFrame, irisCircle, pointInPolygon } from "./regions";
 import { median, percentile } from "./stats";
 
 // Provisional thresholds (CALIBRATE on labeled photos); each is chosen to
@@ -24,6 +25,10 @@ export const QUALITY = {
   // a skin category while leaving room for naturally yellower sclera; the
   // old 22 let every one of those shifts through without a word.
   scleraCast: { maxB: 14, minB: -5, maxAbsA: 12 },
+  // share of the band around the eyes labeled "accessories" by the
+  // segmentation model: drawn frames on a test photo covered 18% of it,
+  // and no photo without glasses had any
+  glassesShare: 0.05,
 };
 
 const ALL = ["eye", "hair", "skin"];
@@ -94,7 +99,26 @@ export function sampleSclera(imageData, points) {
   };
 }
 
-export function assessQuality({ imageData, face, traits }) {
+// Glasses: the segmentation model labels eyewear as "accessories". Returns
+// the share of a band around both eyes (a pupil spacing either side of
+// their midpoint, a third of it above and below) with that label.
+export function glassesShare(mask, points, width, height) {
+  if (!mask) return 0;
+  const f = faceFrame(points);
+  let inside = 0;
+  let glasses = 0;
+  for (let v = -0.35; v <= 0.35; v += 0.05) {
+    for (let u = -1; u <= 1; u += 0.05) {
+      const p = fromFrame(f, { u: u * f.iod, v: v * f.iod });
+      if (p.x < 0 || p.y < 0 || p.x >= width || p.y >= height) continue;
+      inside++;
+      if (maskAt(mask, p.x, p.y, width, height) === MASK.OTHERS) glasses++;
+    }
+  }
+  return inside ? glasses / inside : 0;
+}
+
+export function assessQuality({ imageData, face, traits, mask }) {
   const issues = [];
   const add = (id, affects, message) => issues.push({ id, affects, message });
   const { points } = face;
@@ -107,6 +131,10 @@ export function assessQuality({ imageData, face, traits }) {
   const angle = offAxisDegrees(face.matrix);
   if (angle !== null && angle > QUALITY.maxOffAxisDeg) {
     add("head-turned", ALL, "Your head is turned away from the camera, which changes how light falls on your face. A straight-on photo works best.");
+  }
+
+  if (glassesShare(mask, points, imageData.width, imageData.height) >= QUALITY.glassesShare) {
+    add("glasses", ["eye"], "You seem to be wearing glasses. Lenses tint and reflect light over the iris, so eye color is less certain; a photo without them works best.");
   }
 
   const blink = Math.max(face.blendshapes?.eyeBlinkLeft ?? 0, face.blendshapes?.eyeBlinkRight ?? 0);

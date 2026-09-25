@@ -79,7 +79,7 @@ export function analyze(image, detection) {
   traits.hairline = isolated(() => measureHairline(imageData, mask, face.points));
   traits.beard = isolated(() => measureFacialHair(imageData, mask, face.points, face.blendshapes, face.matrix));
 
-  const quality = isolated(() => assessQuality({ imageData, face, traits }), { issues: [] });
+  const quality = isolated(() => assessQuality({ imageData, face, traits, mask }), { issues: [] });
   for (const [name, t] of Object.entries(traits)) {
     if (t.status === "ok" && CLASSIFIED.includes(name)) {
       t.confidence = combineConfidence({ trait: name, margin: t.margin, issues: quality.issues });
