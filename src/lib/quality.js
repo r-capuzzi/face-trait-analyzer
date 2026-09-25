@@ -16,8 +16,14 @@ export const QUALITY = {
   minSharpness: 40, // variance of the Laplacian on a ~256 px face crop
   maxClippedShare: 0.05, // blown-out highlights on the face
   minScleraL: 45, // the whites of the eyes should be the brightest thing on any face
-  // Real sclera is slightly warm and pink, never neutral, so only strong casts count.
-  scleraCast: { maxB: 22, minB: -4, maxAbsA: 12 },
+  // Real sclera is slightly yellow and red, more so in men and with age
+  // (Russell 2014; Kramer & Russell 2022), so it's never exactly neutral.
+  // Measured here: untinted test photos gave sclera b* -1 to 9, and a
+  // warm-bulb cast that shifted skin ITA by 9-18° raised it to 16-20 (a
+  // cool cast lowered it to -2 to -11). maxB 14 flags a cast of about half
+  // a skin category while leaving room for naturally yellower sclera; the
+  // old 22 let every one of those shifts through without a word.
+  scleraCast: { maxB: 14, minB: -5, maxAbsA: 12 },
 };
 
 const ALL = ["eye", "hair", "skin"];

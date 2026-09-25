@@ -62,3 +62,18 @@ function hexRgb(hex) {
   const n = parseInt(hex.slice(1), 16);
   return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
 }
+
+test("a blown-out patch is left out instead of measured from its shadows", () => {
+  // the right cheek is pure-white-clipped (R = 255): dropping those pixels
+  // would leave only its darkest ones and read the skin darker than it is
+  const m = skinOf([200, 160, 130], { rightCheek: [255, 236, 220] });
+  expect(m.status).toBe("ok");
+  expect(m.patches.map((p) => p.name)).toEqual(["left cheek", "forehead"]);
+  expect(deltaE2000(m.lab, rgbToLab(200, 160, 130))).toBeLessThan(1);
+});
+
+test("skin blown out everywhere is unmeasurable, and says why", () => {
+  const m = skinOf([255, 232, 214]);
+  expect(m.status).toBe("unmeasurable");
+  expect(m.reason).toMatch(/too brightly lit/);
+});

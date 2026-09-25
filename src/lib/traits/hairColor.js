@@ -32,10 +32,22 @@ export const HAIR_RULE = {
   // was being banded as "brown" by lightness alone.)
   neutralMinL: 35,
   // red hair is pheomelanin-dominant: a redder hue AND more saturated than
-  // brown hair of the same lightness
+  // brown hair of the same lightness. Saturation here is C*/(L*+16), not
+  // plain chroma: a brighter exposure scales a*, b* and L*+16 all by the
+  // same cube-root factor, so this ratio doesn't move with exposure while
+  // chroma does. (Brightening a real chestnut-brown head 0.7 stops pushed
+  // its chroma from 16 to 19 and it read "red" under the old chroma-18 rule;
+  // its saturation stayed 0.41.) 0.45 is that old rule at L* 24, the
+  // lightness of the one labeled warm-brown test photo, so behavior there is
+  // unchanged. Still provisional - CALIBRATE on labeled red hair.
   redMaxHue: 55,
-  redMinChroma: 18,
+  redMinSaturation: 0.45,
 };
+
+// Exposure-independent saturation (see HAIR_RULE.redMinSaturation).
+export function saturation({ L, a, b }) {
+  return chroma({ a, b }) / (L + 16);
+}
 
 // Morgan et al. (2018) found hair color forms a continuum from black
 // through dark and light brown to blonde, so non-red, non-gray hair is
@@ -124,8 +136,12 @@ export function classifyHairColor({ lab, chroma: c, hue, grayFraction }) {
   }
 
   // Red needs BOTH a red-enough hue and enough saturation; its margin is the
-  // weaker of the two (in units of 15° hue / 10 chroma).
-  const redScore = Math.min((HAIR_RULE.redMaxHue - hue) / 15, (c - HAIR_RULE.redMinChroma) / 10);
+  // weaker of the two (in units of 15° hue / 0.25 saturation - the latter
+  // matches the old 10 chroma units at L* 24).
+  const redScore = Math.min(
+    (HAIR_RULE.redMaxHue - hue) / 15,
+    (saturation(lab) - HAIR_RULE.redMinSaturation) / 0.25
+  );
   if (redScore >= 0) {
     return { category: "red", margin: clamp01(redScore), runnerUp: byLightness.category };
   }

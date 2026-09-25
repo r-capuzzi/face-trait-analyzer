@@ -12,8 +12,8 @@
 import { classifyBands } from "../bands";
 import { chroma, deltaE2000, hueAngle } from "../color";
 import { circleBox, isClipped, samplePixels } from "../pixels";
-import { eyeOpening, irisCircle, pointInPolygon } from "../regions";
-import { median, medianLab, percentile, trimByPercentile } from "../stats";
+import { eyeOpening, faceFrame, irisCircle, pointInPolygon } from "../regions";
+import { median, medianLab, percentile } from "../stats";
 
 // Sample a ring, not the whole disc: the center is pupil and the outer rim
 // (limbal ring) is darker than the iris itself in most people. 0.35 is the
@@ -29,7 +29,14 @@ export const RING = { inner: 0.35, outer: 0.9, maxInner: 0.72 };
 // lightness profile: the first ring (from the center out) whose median
 // lightness climbs past halfway between pupil and iris.
 const PUPIL_BINS = 18; // 0.05 of the radius each, out to 0.9
+// Below this iris radius each 0.05 ring is under 0.6 px wide and the
+// center holds only a handful of pixels, so the profile is noise: flipping
+// the photo moved the "edge" from 0.35 to 0.5 on a real 8 px iris. Small
+// irises keep the default cutoff and rely on outlier rejection (below) to
+// drop pupil pixels instead.
+export const MIN_PUPIL_SEARCH_RADIUS = 12;
 export function pupilEdge(imageData, circle, lids) {
+  if (circle.r < MIN_PUPIL_SEARCH_RADIUS) return RING.inner;
   const bins = Array.from({ length: PUPIL_BINS }, () => []);
   samplePixels(
     imageData,
@@ -98,9 +105,45 @@ export function pieScore(labs) {
   return (blue - brown) / (blue + brown);
 }
 
+// Glare and stray sclera are bright outliers next to the iris itself; lash
+// shadow and pupil bleed are dark ones. A fixed trim (it used to cut the
+// brightest 15% and darkest 10%) is wrong both ways: on a clean iris it
+// throws away real texture, like the lighter rim of a hazel eye, and on a
+// real studio portrait the two catchlights filled about a quarter of a
+// small iris, so a 15% cut left them in to vote "blue" on a brown eye.
+// Instead keep pixels within k robust standard deviations (1.4826 x the
+// median absolute deviation) of the median lightness. k = 2.5 is the
+// default Leys et al. (2013) recommend for MAD-based outlier rejection;
+// the floor keeps a very even iris from losing pixels to JPEG noise.
+export const OUTLIER = { k: 2.5, minTolerance: 8 };
+
+export function rejectOutliers(pixels) {
+  if (pixels.length < 5) return pixels;
+  const lightness = pixels.map((p) => p.lab.L);
+  const mid = median(lightness);
+  const mad = median(lightness.map((L) => Math.abs(L - mid)));
+  const tolerance = Math.max(OUTLIER.minTolerance, OUTLIER.k * 1.4826 * mad);
+  return pixels.filter((p) => Math.abs(p.lab.L - mid) <= tolerance);
+}
+
+// The upper lid and lashes shade the top of the iris, and that's also where
+// catchlights and reflections of the room usually land. On a real brown eye
+// the shaded top half measured L* ~20 with dark blue-green pixels that
+// voted "blue", while the lit bottom half read L* ~37 and 99% pigmented. So
+// the lower half (below the iris center, along the face's own vertical,
+// so head tilt doesn't matter) is used whenever it alone has enough
+// pixels; a squint that hides it falls back to the whole visible ring.
+export function preferLowerHalf(pixels, circle, down) {
+  const lower = pixels.filter(
+    (p) => (p.x + 0.5 - circle.cx) * down.x + (p.y + 0.5 - circle.cy) * down.y >= 0
+  );
+  return lower.length >= MIN_EYE_PIXELS ? lower : pixels;
+}
+
 // The usable iris pixels of one eye: inside the ring AND inside the eyelid
-// opening (drops lid and lash occlusion), not clipped, with the brightest 15%
-// (catchlights) and darkest 10% (lash shadow, pupil bleed) trimmed off.
+// opening (drops lid and lash occlusion), not clipped, from the lower half
+// when possible, and not a lightness outlier (catchlights, sclera, lashes,
+// pupil; see rejectOutliers).
 export function sampleIris(imageData, points, side) {
   const circle = irisCircle(points, side);
   const lids = eyeOpening(points, side);
@@ -116,7 +159,7 @@ export function sampleIris(imageData, points, side) {
     return true;
   };
   const raw = samplePixels(imageData, circleBox(circle), include).filter((p) => !isClipped(p));
-  const pixels = trimByPercentile(raw, (p) => p.lab.L, 0.1, 0.85);
+  const pixels = rejectOutliers(preferLowerHalf(raw, circle, faceFrame(points).ey));
   return { circle, pixels, innerRadius: inner, visibleFraction: ringCount ? visibleCount / ringCount : 0 };
 }
 

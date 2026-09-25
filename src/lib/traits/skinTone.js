@@ -26,6 +26,13 @@ export const ITA_BANDS = [
 ];
 
 export const MIN_PATCH_PIXELS = 40;
+// Each patch drops its brightest 10% as shine (the trim below), so that
+// much clipping costs nothing: the blown pixels would have gone anyway.
+// Past that the patch is biased, not just smaller - dropping blown pixels
+// keeps only the darker, shadowed ones. Brightening a real portrait by 0.7
+// stops made its skin read "tan" instead of lighter for exactly this
+// reason. Such a patch is left out rather than measured.
+export const MAX_PATCH_CLIPPED = 0.1;
 // Patches this far apart in ITA mean the light falls unevenly across the
 // face (one cheek in shadow), so the single number deserves less trust.
 export const UNEVEN_LIGHT_ITA = 20;
@@ -56,21 +63,24 @@ export function measureSkinTone(imageData, mask, points) {
     const raw = inPatch.filter((p) => !isClipped(p));
     rawCount += inPatch.length;
     clippedCount += inPatch.length - raw.length;
+    const blownOut = inPatch.length > 0 && (inPatch.length - raw.length) / inPatch.length > MAX_PATCH_CLIPPED;
     // drop shadowed pores/creases and specular shine
-    const pixels = trimByPercentile(raw, (p) => p.lab.L, 0.1, 0.9);
+    const pixels = blownOut ? [] : trimByPercentile(raw, (p) => p.lab.L, 0.1, 0.9);
     const lab = pixels.length ? medianLab(pixels.map((p) => p.lab)) : null;
-    return { ...patch, pixels, lab, ita: lab ? ita(lab) : null };
+    return { ...patch, pixels, lab, ita: lab ? ita(lab) : null, blownOut };
   });
   // share of blown-out (or crushed) pixels before filtering: an exposure signal
   const clippedShare = rawCount ? clippedCount / rawCount : 0;
 
   const usable = patches.filter((p) => p.pixels.length >= MIN_PATCH_PIXELS);
   if (usable.length < 2) {
+    const blown = patches.filter((p) => p.blownOut).length;
     return {
       status: "unmeasurable",
       clippedShare,
-      reason:
-        "Not enough clear skin is visible on the cheeks and forehead (hair, a beard, glasses or shadows may be covering them). You can still pick a skin tone below to read about it.",
+      reason: blown
+        ? "Your skin is too brightly lit in this photo to measure: parts of it are blown out to pure white, so its real color is lost. Try softer light without flash. You can still pick a skin tone below to read about it."
+        : "Not enough clear skin is visible on the cheeks and forehead (hair, a beard, glasses or shadows may be covering them). You can still pick a skin tone below to read about it.",
     };
   }
 

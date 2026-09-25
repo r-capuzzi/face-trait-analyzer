@@ -3,8 +3,13 @@ import {
   classifyEyeColor,
   classifyIrisPixel,
   measureEyeColor,
+  MIN_PUPIL_SEARCH_RADIUS,
   pieScore,
+  pupilEdge,
+  RING,
+  rejectOutliers,
 } from "./eyeColor";
+import { eyeOpening } from "../regions";
 import { BLUE, BROWN, syntheticFace } from "../../test/syntheticFace";
 
 test("classifyIrisPixel: warm hues and dark neutrals are pigment, the rest scatter blue", () => {
@@ -97,4 +102,38 @@ describe("classifyEyeColor", () => {
     expect(classifyEyeColor({ pie: 1, lab: blueLab }).margin).toBeGreaterThanOrEqual(0.5);
     expect(classifyEyeColor({ pie: -1, lab: brownLab }).margin).toBeGreaterThanOrEqual(0.5);
   });
+});
+
+test("glare filling a quarter of a small iris is rejected, not left in to vote blue", () => {
+  // a real studio portrait: two catchlights covered ~25% of an 8 px iris;
+  // the old fixed trim (brightest 15%) left half of them in
+  const iris = Array.from({ length: 75 }, (_, i) => ({ lab: { L: 12 + (i % 7), a: 6, b: 5 } }));
+  const glare = Array.from({ length: 25 }, (_, i) => ({ lab: { L: 70 + (i % 10), a: 0, b: 1 } }));
+  const kept = rejectOutliers([...iris, ...glare]);
+  expect(kept).toHaveLength(75);
+  expect(kept.every((p) => p.lab.L < 30)).toBe(true);
+});
+
+test("a clean, textured iris keeps its lighter and darker parts", () => {
+  // a hazel iris: brown collarette (L 30) and a lighter green rim (L 48)
+  const hazel = [
+    ...Array.from({ length: 50 }, () => ({ lab: { L: 30, a: 8, b: 18 } })),
+    ...Array.from({ length: 50 }, () => ({ lab: { L: 48, a: -6, b: 14 } })),
+  ];
+  expect(rejectOutliers(hazel)).toHaveLength(100);
+});
+
+test("the shaded upper half of a brown iris doesn't turn it toward blue", () => {
+  // lid shadow: the top of the iris darkened to a blue-green gray, as
+  // measured on a real brown eye (L* ~20, hue ~200°)
+  const shaded = syntheticFace({ right: BROWN, left: BROWN }, { upperIris: [35, 50, 55] });
+  const m = measureEyeColor(shaded.imageData, shaded.points);
+  expect(m.pie).toBe(-1);
+  expect(classifyEyeColor(m).category).toBe("brown");
+});
+
+test("a small iris keeps the default pupil cutoff instead of searching sub-pixel rings", () => {
+  const { imageData, points } = syntheticFace({ right: BLUE, left: BLUE }, { pupilR: 24 });
+  const small = { cx: 100, cy: 100, r: MIN_PUPIL_SEARCH_RADIUS - 1 };
+  expect(pupilEdge(imageData, small, eyeOpening(points, "right"))).toBe(RING.inner);
 });

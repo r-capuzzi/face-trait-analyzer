@@ -1,6 +1,6 @@
 import { deltaE2000, rgbToLab } from "../color";
 import { syntheticHead } from "../../test/syntheticHead";
-import { classifyHairColor, isGrayPixel, measureHairColor } from "./hairColor";
+import { classifyHairColor, isGrayPixel, measureHairColor, saturation } from "./hairColor";
 
 const SKIN = [205, 165, 135];
 
@@ -55,8 +55,19 @@ test("gray pixels must be both near-neutral and not dark (black hair isn't gray)
 });
 
 test("auburn-ish hair just short of the red rule is 'brown' with red as runner-up", () => {
-  const r = classifyHairColor({ lab: { L: 38, a: 14, b: 16 }, chroma: 17, hue: 49, grayFraction: 0 });
+  // saturation 23 / (38 + 16) = 0.43, just under 0.45
+  const r = classifyHairColor({ lab: { L: 38, a: 15, b: 17.4 }, chroma: 23, hue: 49, grayFraction: 0 });
   expect(r.category).toBe("brown");
   expect(r.runnerUp).toBe("red");
   expect(r.margin).toBeLessThan(0.2);
+});
+
+test("the red rule doesn't move with exposure: a brighter photo of brown hair stays brown", () => {
+  // a real chestnut-brown head, as photographed and 0.7 stops brighter
+  // (chroma 16.3 -> 19.2: over the old fixed chroma-18 rule)
+  const asShot = { lab: { L: 24, a: 10.3, b: 12.7 }, chroma: 16.3, hue: 51, grayFraction: 0 };
+  const brighter = { lab: { L: 31, a: 12.1, b: 14.9 }, chroma: 19.2, hue: 51, grayFraction: 0 };
+  expect(saturation(asShot.lab)).toBeCloseTo(saturation(brighter.lab), 1);
+  expect(classifyHairColor(asShot).category).not.toBe("red");
+  expect(classifyHairColor(brighter).category).not.toBe("red");
 });
