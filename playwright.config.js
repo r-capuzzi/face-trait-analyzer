@@ -5,9 +5,11 @@ import { defineConfig, devices } from "@playwright/test";
 // run against `npm run preview` (the built app with production's headers);
 // playwright.prod.config.js points the same tests at the live site.
 //
-// No browser download is needed: the tests drive an installed Chromium
-// browser (Edge on Windows, where it always exists; Chrome elsewhere, which
-// GitHub's Ubuntu runners have). E2E_CHANNEL overrides it.
+// The Chromium projects drive an installed browser (Edge on Windows, where
+// it always exists; Chrome elsewhere, which GitHub's Ubuntu runners have;
+// E2E_CHANNEL overrides it). The WebKit projects - Safari's engine, for
+// iPhone and Mac visitors - need Playwright's WebKit build:
+// `npx playwright install webkit`.
 const channel = process.env.E2E_CHANNEL ?? (process.platform === "win32" ? "msedge" : "chrome");
 export const PREVIEW_URL = "http://localhost:4173";
 
@@ -25,12 +27,13 @@ export default defineConfig({
   reporter: process.env.CI ? [["github"], ["list"]] : "list",
   use: {
     baseURL: PREVIEW_URL,
-    channel,
     trace: "retain-on-failure",
   },
   projects: [
-    { name: "desktop", use: { viewport: { width: 1280, height: 900 } }, testIgnore: /mobile/ },
+    { name: "desktop", use: { viewport: { width: 1280, height: 900 }, channel }, testIgnore: /mobile/ },
     { name: "mobile", use: { ...devices["Pixel 7"], channel }, testMatch: /mobile/ },
+    { name: "webkit", use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 900 } }, testIgnore: /mobile/ },
+    { name: "iphone", use: { ...devices["iPhone 14"] }, testMatch: /mobile/ },
   ],
   webServer: {
     command: "npm run build && npm run preview -- --strictPort",

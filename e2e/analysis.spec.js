@@ -1,7 +1,7 @@
 // Real photos through the whole app: upload, both models, every trait, the
 // overlay, the summary - checked against what a person sees in each photo.
 import { test, expect, ALLOWED_HOSTS } from "./fixtures.js";
-import { PHOTOS } from "./photos.js";
+import { PHOTOS, traitMismatch } from "./photos.js";
 
 for (const [key, { file, expect: want }] of Object.entries(PHOTOS)) {
   test(`${file}: reads what a person sees`, async ({ app }) => {
@@ -9,22 +9,19 @@ for (const [key, { file, expect: want }] of Object.entries(PHOTOS)) {
     await expect(app.page.locator("#results-heading")).toBeAttached();
     const s = await app.summary();
 
-    for (const trait of ["eye", "hair"]) {
-      if (!want[trait]) continue;
-      expect(s[trait].measured, `${trait}: ${s[trait].reason}`).toBe(true);
-      // every category offered must be an acceptable one...
-      for (const c of s[trait].categories) expect(want[trait], `${trait} said ${c}`).toContain(c);
-      // ...and a hedge must still include the right answer where it's known
-      if (want.mustInclude?.[trait]) expect(s[trait].categories).toContain(want.mustInclude[trait]);
-    }
-    if (want.skin === "measured") {
-      expect(s.skin.measured, s.skin.reason).toBe(true);
-      expect(s.skin.numbers.ita).not.toBeNull();
-      expect(s.skin.numbers.monk).toBeGreaterThanOrEqual(1);
-    }
-    if (want.warning) expect(s.checks.join("\n")).toMatch(want.warning);
-    // nobody in these photos wears glasses
-    expect(s.checks.join("\n")).not.toMatch(/glasses/);
+    // every trait checked; exactly the declared known issues may be wrong
+    const mismatches = ["eye", "hair", "skin"]
+      .map((t) => [t, traitMismatch(t, s[t], want[t], want.mustInclude?.[t])])
+      .filter(([, m]) => m);
+    expect(
+      mismatches.map(([t]) => t),
+      mismatches.map(([, m]) => m).join("; ")
+    ).toEqual(want.knownIssues ?? []);
+
+    const checks = s.checks.join("\n");
+    if (want.warning) expect(checks).toMatch(want.warning);
+    if (want.glasses) expect(checks).toMatch(/wearing glasses/);
+    else expect(checks).not.toMatch(/glasses/);
 
     expect(app.log.pageErrors).toEqual([]);
     expect(app.log.consoleErrors).toEqual([]);

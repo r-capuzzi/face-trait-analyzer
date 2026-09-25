@@ -22,7 +22,10 @@ export const test = base.extend({
     async ({ browser }, use, workerInfo) => {
       const projectUse = workerInfo.project.use;
       const options = Object.fromEntries(CONTEXT_KEYS.filter((k) => k in projectUse).map((k) => [k, projectUse[k]]));
-      const context = await browser.newContext({ ...options, permissions: ["clipboard-read", "clipboard-write"] });
+      // clipboard permissions exist only in Chromium; elsewhere the app's
+      // copy falls back to a text box, which App.summary() reads instead
+      const permissions = browser.browserType().name() === "chromium" ? ["clipboard-read", "clipboard-write"] : [];
+      const context = await browser.newContext({ ...options, permissions });
       await use(context);
       await context.close();
     },
@@ -78,13 +81,25 @@ export class App {
     // the clipboard only works for the focused tab, and variant() works in a
     // second one
     await this.page.bringToFront();
+    // Record what the app copies instead of reading the clipboard back:
+    // WebKit lets a page write to the clipboard but never read it.
+    await this.page.evaluate(() => {
+      const clip = navigator.clipboard;
+      if (!clip || clip.__recorded) return;
+      const write = clip.writeText.bind(clip);
+      clip.writeText = (text) => {
+        window.__copiedText = text;
+        return write(text);
+      };
+      clip.__recorded = true;
+    });
     await this.page.getByRole("button", { name: "Copy results summary" }).click();
     const status = this.page.locator(".copy-summary__status");
     const manual = this.page.locator(".copy-summary__manual textarea");
     await expect(status.filter({ hasText: "Copied" }).or(manual)).toBeVisible();
     const text = (await manual.isVisible())
       ? await manual.inputValue()
-      : await this.page.evaluate(() => navigator.clipboard.readText());
+      : await this.page.evaluate(() => window.__copiedText);
     return parseSummary(text);
   }
 

@@ -22,6 +22,10 @@ test("classifyIrisPixel: warm hues and dark neutrals are pigment, the rest scatt
   expect(classifyIrisPixel({ L: 20, a: 1, b: 2 })).toBe("brown"); // near-black
   expect(classifyIrisPixel({ L: 50, a: 3, b: 25 })).toBe("brown"); // amber/yellow
   expect(classifyIrisPixel({ L: 50, a: -15, b: 15 })).toBe("blue"); // green, hue 135
+  // a real dark brown iris under a slight magenta cast (hue 340): pigment
+  expect(classifyIrisPixel({ L: 8, a: 11, b: -4 })).toBe("brown");
+  // real blue irises measured 252-270
+  expect(classifyIrisPixel({ L: 30, a: -6, b: -18 })).toBe("blue");
 });
 
 test("pieScore runs from -1 (all brown) to +1 (all blue)", () => {

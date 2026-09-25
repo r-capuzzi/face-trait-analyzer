@@ -139,6 +139,15 @@ The app has been run on four of MediaPipe's sample photos (not in the repo), fiv
 
 On the smallest face (a 256 px image, 6 px iris radius) the eyes look gray-green, and the app answers "between brown and green/hazel" at low confidence. A simulation that shrinks painted irises down to a 4 px radius showed that size alone doesn't bias the result. This iris is dark and nearly gray in the photo, and near-gray pixels are classified by lightness, so it sits right on the brown/blue line. Hedging is the honest answer there.
 
+### Tested on a wider set of faces
+
+Nine openly licensed portraits from Wikimedia Commons were added to the four MediaPipe samples, to cover what those lacked: blue and green eyes, blond and red hair, glasses, headscarves, and tan to brown skin. Each was labeled by eye before running the app, and each photo's source, license and author are listed in [`e2e/photos.js`](e2e/photos.js). They turned up a serious error: a dark brown iris with a slight magenta cast (hue 340°) read "Blue / gray" with high confidence, because every hue outside the warm band counted as unpigmented. Blue scattering sits at 250–270° on these photos, so unpigmented now means 100–300° only, and magenta and red count as pigment.
+
+Three readings are still wrong and are declared as known issues in the tests, so a fix or a new mistake both show up:
+
+- **Platinum blond under shade reads gray.** It measures nearly colorless (chroma ~6), the same as gray hair.
+- **Two brown-skinned faces read "very light".** One is under high-key studio light (the lit cheek at L* 84–86), the other under side light with a cool cast. Both photos get the uneven-light warning, but a photo alone can't recover exposure.
+
 ### Stress-tested with altered copies
 
 Each test photo was also run as the kinds of copies phones and apps produce: mirrored, re-compressed, darker, brighter, under warm or cool light, blurred and shrunk. Nothing about the person changes in these copies, so any change in the answer is the app's error. That turned up five problems, now fixed:
@@ -185,7 +194,7 @@ The end-to-end tests ([`e2e/`](e2e)) run the real models on real photos and chec
 - **Color correction:** warm light is flagged, and correcting it by mouse or keyboard brings skin back to within 4° ITA of the untinted photo.
 - **Bad input and layout:** non-images, corrupt files, HEIC, no face and tiny faces all give clear messages, and nothing is wider than a phone screen.
 
-They drive the installed Edge (Windows) or Chrome, so no browser download is needed, and fetch MediaPipe's sample photos into `test-photos/` if they're missing. CI runs them on every push. A second workflow ([`production.yml`](.github/workflows/production.yml)) runs them against the live site after every Vercel production deploy.
+They run in two engines: Chromium (the installed Edge on Windows, or Chrome) and WebKit, Safari's engine, as a desktop browser and an iPhone (`npx playwright install webkit` once). Missing test photos are fetched into `test-photos/` from MediaPipe's bucket and Wikimedia Commons. CI runs them on every push. A second workflow ([`production.yml`](.github/workflows/production.yml)) runs them against the live site after every Vercel production deploy.
 
 Stack: React 19, Vite 8, Vitest 5, `@mediapipe/tasks-vision` 1.0.1 (models pinned by version).
 

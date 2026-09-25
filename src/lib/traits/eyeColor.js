@@ -164,14 +164,18 @@ export const MIN_EYE_PIXELS = 30;
 // over half the ring visible.
 export const MIN_VISIBLE_RING = 0.3;
 
-// Per-pixel rule. Melanin (eumelanin brown, pheomelanin yellow-red) sits in
-// the red-to-yellow hue band; unpigmented stroma scatters blue-gray.
-// Andersen 2013 didn't publish DIAT's exact cutoffs, so these are physically
-// motivated starting values - CALIBRATE against labeled photos (Phase 3
-// verification) before trusting them.
+// Per-pixel rule. Unpigmented stroma scatters blue: the blue and gray-blue
+// irises in the labeled test photos measured 252-270°. Green (100-180°) is
+// that scattering seen through thin yellow pigment, so it stays on the same
+// side (and is counted separately, see isGreenPixel). Every other hue -
+// yellow, orange, red, magenta - is melanin, or blood and camera tint over
+// it. (It used to be "anything outside 15-100° is blue": a real dark brown
+// iris, L* 8 with a slight magenta cast at 340°, read "Blue / gray" with
+// high confidence.) Andersen 2013 didn't publish DIAT's exact cutoffs, so
+// these remain physically motivated values - CALIBRATE on more labeled eyes.
 export const PIXEL_RULE = {
   minChroma: 6, // below this, hue is mostly camera noise: fall back to lightness
-  warmHue: [15, 100], // degrees; ~100 is where yellow turns green in CIELAB
+  unpigmentedHue: [100, 300], // degrees; ~100 is where yellow turns green in CIELAB
   darkNeutralL: 30, // a near-neutral pixel this dark is dense melanin, not gray
 };
 
@@ -180,7 +184,7 @@ export function classifyIrisPixel(lab) {
     return lab.L < PIXEL_RULE.darkNeutralL ? "brown" : "blue";
   }
   const h = hueAngle(lab);
-  return h >= PIXEL_RULE.warmHue[0] && h <= PIXEL_RULE.warmHue[1] ? "brown" : "blue";
+  return h > PIXEL_RULE.unpigmentedHue[0] && h < PIXEL_RULE.unpigmentedHue[1] ? "blue" : "brown";
 }
 
 // Green isn't a pigment of its own: a green iris is blue scattering seen
@@ -192,7 +196,7 @@ export function classifyIrisPixel(lab) {
 export function isGreenPixel(lab) {
   if (chroma(lab) < PIXEL_RULE.minChroma || lab.b <= 0) return false;
   const h = hueAngle(lab);
-  return h > PIXEL_RULE.warmHue[1] && h < 180;
+  return h > PIXEL_RULE.unpigmentedHue[0] && h < 180;
 }
 
 // Share of the blue-side pixels that are green, 0 to 1.
