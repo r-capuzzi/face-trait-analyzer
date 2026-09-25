@@ -3,7 +3,7 @@ import Icon from "./Icon";
 import { preloadVision } from "../lib/vision";
 
 const TIPS = [
-  { icon: "face", text: "Face the camera, eyes open, relaxed expression" },
+  { icon: "face", text: "Face the camera, eyes open, glasses off, relaxed expression" },
   { icon: "sun", text: "Soft daylight from in front, no flash" },
   { icon: "filter", text: "No filters, beauty mode or heavy makeup" },
   { icon: "ruler", text: "About 1.5 m away is best for face shape" },

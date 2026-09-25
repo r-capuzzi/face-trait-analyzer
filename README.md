@@ -159,6 +159,8 @@ Exposure still moves skin tone: a photo one stop darker reads about one to two I
 
 ### What's provisional
 
+The newer limits are starting values too: the glare cutoff (2.5 robust standard deviations), the 10% clipped share that drops a skin patch, the sclera b* limit for warm light, the red-hair saturation, the majority rule for green eyes, the 5% glasses share, the iris-edge search and the 45 cm close-up distance. Each is explained where it's defined.
+
 The per-pixel eye threshold, the eye's ±0.4 intermediate band, the hair thresholds, the quality limits and the color-correction limit (how strong a cast it will remove) are physically reasoned starting values, marked `CALIBRATE` in the code. The published photo studies don't give exact cutoffs in open-access text, so these still need calibrating against labeled photos.
 
 ## Development
