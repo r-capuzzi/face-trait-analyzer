@@ -44,3 +44,21 @@ test("the CSP really blocks requests to other hosts", async ({ app }) => {
   );
   expect(outcome).toBe("blocked");
 });
+
+test("the MediaPipe runtime loads at exactly the installed version", async ({ app }) => {
+  // the WASM and the JS API must match (vite.config.js pins the URL to the
+  // installed package); a mismatch fails with an opaque error in production
+  const { version } = JSON.parse(readFileSync(new URL("../node_modules/@mediapipe/tasks-vision/package.json", import.meta.url)));
+  await app.analyze("business");
+  const wasm = app.networkRequests().filter((r) => r.url.includes("cdn.jsdelivr.net"));
+  expect(wasm.length).toBeGreaterThan(0);
+  for (const r of wasm) expect(r.url).toContain(`@mediapipe/tasks-vision@${version}/wasm/`);
+});
+
+test("on Vercel, hashed assets are cached as immutable", async ({ app }) => {
+  const page = await app.page.request.get("/");
+  test.skip(page.headers()["server"] !== "Vercel", "only production sets asset cache headers");
+  const script = (await page.text()).match(/\/assets\/[^"]+\.js/)[0];
+  const res = await app.page.request.get(script);
+  expect(res.headers()["cache-control"]).toBe("public, max-age=31536000, immutable");
+});
