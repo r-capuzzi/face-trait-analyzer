@@ -4,8 +4,9 @@
 // model bucket; any other request - an analytics beacon, an upload - is
 // blocked before it leaves the tab.
 //
-// Used by vite.config.js (`npm run preview`) and mirrored verbatim in
-// vercel.json (production); a test keeps the two in sync.
+// Mirrored verbatim in vercel.json, which production and `npm run preview`
+// (vite.config.js) both serve; a unit test keeps the two in sync, and the
+// end-to-end tests check the header actually arrives.
 
 export const CSP = [
   "default-src 'self'",

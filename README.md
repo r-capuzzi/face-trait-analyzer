@@ -139,6 +139,18 @@ The app has been run on four of MediaPipe's sample photos (not in the repo), fiv
 
 On the smallest face (a 256 px image, 6 px iris radius) the eyes look gray-green, and the app answers "between brown and green/hazel" at low confidence. A simulation that shrinks painted irises down to a 4 px radius showed that size alone doesn't bias the result. This iris is dark and nearly gray in the photo, and near-gray pixels are classified by lightness, so it sits right on the brown/blue line. Hedging is the honest answer there.
 
+### Stress-tested with altered copies
+
+Each test photo was also run as the kinds of copies phones and apps produce: mirrored, re-compressed, darker, brighter, under warm or cool light, blurred and shrunk. Nothing about the person changes in these copies, so any change in the answer is the app's error. That turned up five problems, now fixed:
+
+- **Eye color:** the top of the iris sits in the upper lid's shadow and holds most catchlights. On a brown eye those dark blue-green pixels voted "blue" (PIE −0.84 instead of −1). The sample now uses the lower half of the iris when it has enough pixels. Glare is rejected by its distance from the iris's median lightness (Leys et al. 2013) instead of by a fixed 15% trim, which let half of a studio portrait's catchlights through.
+- **Pupil edge on small irises:** below a 12 px iris radius the pupil search was reading sub-pixel noise, and a mirrored copy moved it from 35% to 50% of the radius. Small irises now keep the default cutoff.
+- **Skin in bright light:** dropping blown-out pixels left only a patch's shadows, so a brighter photo read *darker* ("tan" instead of "intermediate"). A patch with more than 10% clipped pixels is now left out, and fully blown-out skin says so.
+- **Warm light went unflagged:** a warm-bulb cast shifted skin by up to 18° ITA without a warning, because the lighting check only fired at sclera b* > 22. It now fires at 14, just above the untinted photos (−1 to 9).
+- **Red hair and exposure:** the red rule used plain chroma, which rises with brightness, so brightened chestnut-brown hair read "red". It now uses C*/(L*+16), which exposure doesn't change.
+
+Exposure still moves skin tone: a photo one stop darker reads about one to two ITA categories darker. Only a color reference card in the photo could remove that, which is why skin confidence stays capped at medium.
+
 ### What's provisional
 
 The per-pixel eye threshold, the eye's ±0.4 intermediate band, the hair thresholds, the quality limits and the color-correction limit (how strong a cast it will remove) are physically reasoned starting values, marked `CALIBRATE` in the code. The published photo studies don't give exact cutoffs in open-access text, so these still need calibrating against labeled photos.
@@ -147,11 +159,23 @@ The per-pixel eye threshold, the eye's ±0.4 intermediate band, the hair thresho
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm test         # Vitest: color math, trait measurement on synthetic images, UI flows
+npm run dev            # http://localhost:5173
+npm test               # Vitest: color math, trait measurement on synthetic images, UI flows
 npm run build
-npm run preview  # production build with the real CSP, http://localhost:4173
+npm run preview        # production build with production's headers, http://localhost:4173
+npm run test:e2e       # Playwright: the production build in a real browser
+npm run test:e2e:prod  # the same tests against the live site
 ```
+
+The end-to-end tests ([`e2e/`](e2e)) run the real models on real photos and check:
+
+- **Answers:** each photo gets an answer a person looking at it would accept. A hedge like "Black or Brown" passes only if it includes the right answer.
+- **Stability:** a mirrored, re-compressed, EXIF-rotated, Display-P3, 12-megapixel or half-size copy of a photo gets the same answer as the original. A mutation check confirmed these tests fail when color management is switched off.
+- **Privacy:** the photo never leaves the page. Every request is a GET to the site, jsDelivr or Google's model bucket, and the CSP blocks everything else.
+- **Color correction:** warm light is flagged, and correcting it by mouse or keyboard brings skin back to within 4° ITA of the untinted photo.
+- **Bad input and layout:** non-images, corrupt files, HEIC, no face and tiny faces all give clear messages, and nothing is wider than a phone screen.
+
+They drive the installed Edge (Windows) or Chrome, so no browser download is needed, and fetch MediaPipe's sample photos into `test-photos/` if they're missing. CI runs them on every push. A second workflow ([`production.yml`](.github/workflows/production.yml)) runs them against the live site after every Vercel production deploy.
 
 Stack: React 19, Vite 8, Vitest 5, `@mediapipe/tasks-vision` 1.0.1 (models pinned by version).
 
