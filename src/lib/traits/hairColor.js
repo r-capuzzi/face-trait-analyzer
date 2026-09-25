@@ -153,6 +153,12 @@ export function classifyHairColor({ lab, chroma: c, hue, grayFraction }) {
     };
   }
 
+  // Below the gray rule's chroma floor the hue is mostly camera noise, so
+  // near-black hair isn't weighed as red at all (not even as the runner-up:
+  // the saturation ratio magnifies dark colors, and a real L* 9, chroma 5
+  // head of very dark brown hair came out "Black or Red" without this).
+  if (c < HAIR_RULE.grayMaxChroma) return byLightness;
+
   // Red needs BOTH a red-enough hue and enough saturation; its margin is the
   // weaker of the two (in units of 15° hue / 0.25 saturation - the latter
   // matches the old 10 chroma units at L* 24).

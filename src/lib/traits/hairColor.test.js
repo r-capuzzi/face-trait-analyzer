@@ -80,3 +80,10 @@ test("a beard (which the model labels hair too) doesn't color the head's hair", 
   expect(m.grayFraction).toBe(0);
   expect(classifyHairColor(m).category).toBe("brown");
 });
+
+test("near-black hair with a noisy reddish hue isn't offered as red", () => {
+  // measured on a real photo of very dark brown hair
+  const r = classifyHairColor({ lab: { L: 9, a: 4.4, b: 2.8 }, chroma: 5.2, hue: 32, grayFraction: 0 });
+  expect(r.category).toBe("black");
+  expect(r.runnerUp).not.toBe("red");
+});
