@@ -1,7 +1,7 @@
 import { deltaE2000, ita, rgbToLab } from "../color";
 import { syntheticHead } from "../../test/syntheticHead";
 import { MONK_SCALE } from "../../data/monk";
-import { classifySkinTone, measureSkinTone, nearestMonk } from "./skinTone";
+import { atExposure, classifySkinTone, itaExposureRange, measureSkinTone, nearestMonk } from "./skinTone";
 
 const HAIR = [60, 45, 35];
 
@@ -76,4 +76,24 @@ test("skin blown out everywhere is unmeasurable, and says why", () => {
   const m = skinOf([255, 232, 214]);
   expect(m.status).toBe("unmeasurable");
   expect(m.reason).toMatch(/too brightly lit/);
+});
+
+test("exposure: zero stops changes nothing, and brighter reads lighter (higher ITA)", () => {
+  const lab = rgbToLab(200, 160, 130);
+  const same = atExposure(lab, 0);
+  expect(same.L).toBeCloseTo(lab.L, 6);
+  expect(same.a).toBeCloseTo(lab.a, 6);
+  expect(same.b).toBeCloseTo(lab.b, 6);
+  const { darker, brighter } = itaExposureRange(lab, 0.5);
+  expect(darker).toBeLessThan(ita(lab));
+  expect(brighter).toBeGreaterThan(ita(lab));
+});
+
+test("exposure matches scaling the pixel's linear light directly", () => {
+  // half a stop brighter, done the long way: sRGB -> linear, x sqrt(2), -> sRGB
+  const lin = (v) => ((v /= 255) <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+  const enc = (v) => 255 * (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+  const rgb = [150, 110, 85];
+  const scaled = rgb.map((c) => enc(lin(c) * Math.SQRT2));
+  expect(deltaE2000(atExposure(rgbToLab(...rgb), 0.5), rgbToLab(...scaled))).toBeLessThan(0.5);
 });

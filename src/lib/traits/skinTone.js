@@ -97,6 +97,30 @@ export function measureSkinTone(imageData, mask, points) {
   };
 }
 
+// What the same skin would read if the photo were `stops` brighter (or,
+// negative, darker). Exposure multiplies linear light - X, Y and Z alike -
+// by 2^stops, and CIELAB's cube root carries that into L* and b*, so for an
+// unclipped color this is exact, not an estimate. A photo without a color
+// reference can't pin exposure down (a stop darker read one to two skin
+// categories darker on the test photos), so the card shows this range.
+export const EXPOSURE_STOPS = 0.5;
+const EPS = 216 / 24389;
+const KAPPA = 24389 / 27;
+const f = (t) => (t > EPS ? Math.cbrt(t) : (KAPPA * t + 16) / 116);
+const fInv = (u) => (u ** 3 > EPS ? u ** 3 : (116 * u - 16) / KAPPA);
+
+export function atExposure({ L, a, b }, stops) {
+  const fy = (L + 16) / 116;
+  const k = 2 ** stops;
+  // X/Xn, Y/Yn, Z/Zn: the white point cancels, since all three scale alike
+  const [x, y, z] = [fInv(fy + a / 500), fInv(fy), fInv(fy - b / 200)].map((t) => t * k);
+  return { L: 116 * f(y) - 16, a: 500 * (f(x) - f(y)), b: 200 * (f(y) - f(z)) };
+}
+
+export function itaExposureRange(lab, stops = EXPOSURE_STOPS) {
+  return { darker: ita(atExposure(lab, -stops)), brighter: ita(atExposure(lab, stops)) };
+}
+
 // { category, margin, runnerUp }. Open-ended bands get a 14° nominal depth,
 // the width of the neighboring "light" and "tan" bands.
 export function classifySkinTone({ ita: angle }) {

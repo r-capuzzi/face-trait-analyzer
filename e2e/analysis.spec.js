@@ -79,6 +79,8 @@ test("every section and card renders for a full result", async ({ app }) => {
   for (const title of ["Eye color", "Hair color", "Skin tone"]) {
     await expect(app.page.getByRole("heading", { name: title, exact: true }).first()).toBeVisible();
   }
+  // skin tone says how much exposure alone could move it
+  await expect(app.page.getByText(/half a stop darker or brighter would read ITA -?\d+° to -?\d+°/)).toBeVisible();
   // citations resolve to real links
   const links = app.page.locator('a[href^="https://doi.org/"]');
   expect(await links.count()).toBeGreaterThan(10);
