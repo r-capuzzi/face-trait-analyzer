@@ -2,6 +2,7 @@
 // to report a result that looks wrong ("it said hazel, my eyes are blue").
 // Labels and rounded numbers only: nothing in it can reconstruct the photo.
 import { COLOR_CARDS, SELF_REPORTED, SHAPE_CARDS } from "../data/cards";
+import { itaExposureRange } from "./traits/skinTone";
 
 // What a color card currently says, in a few words: the visitor's own pick
 // wins, a low-confidence result keeps its "or", and unmeasured says so.
@@ -19,7 +20,11 @@ const r = (v, digits = 0) => (Number.isFinite(v) ? v.toFixed(digits) : "?");
 const COLOR_DETAIL = {
   eye: (t) => `pixel index ${r(t.pie, 2)}, green share ${r((t.greenShare ?? 0) * 100)}%`,
   hair: (t) => `lightness L* ${r(t.lab?.L)}, chroma ${r(t.chroma, 1)}`,
-  skin: (t) => `ITA ${r(t.ita)}°, closest Monk swatch ${t.monk?.tone ?? "?"}`,
+  skin: (t) => {
+    const range = t.lab ? itaExposureRange(t.lab) : null;
+    const spread = range ? `, or ${r(range.darker)}° to ${r(range.brighter)}° half a stop darker or brighter` : "";
+    return `ITA ${r(t.ita)}°${spread}, closest Monk swatch ${t.monk?.tone ?? "?"}`;
+  },
 };
 
 export function summarizeResult(result, { overrides = {}, correction = null, date = new Date() } = {}) {
