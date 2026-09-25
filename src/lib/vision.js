@@ -113,7 +113,11 @@ function cropMask(segmenter, image, box) {
 // finds no face, it looks again in zoomed-in windows - halves, then thirds
 // of the photo, overlapping by half so a face on a boundary is still whole
 // in one of them - and maps what it finds back to the whole photo.
-export const ZOOM_STEPS = [2, 3];
+// Once a level finds a face, the next closer level is searched too and
+// merged: a face right at the detector's limit is found on one machine and
+// missed on another (a distant two-person photo lost its second face on
+// Linux Chrome), and one more zoom step gives it room.
+export const ZOOM_STEPS = [2, 3, 4];
 
 export function zoomWindows(width, height, zoom) {
   const w = Math.round(width / zoom);
@@ -157,10 +161,10 @@ function detectFaces(faceLandmarker, image) {
   if (whole.length) return whole;
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
-  for (const zoom of ZOOM_STEPS) {
-    // every window at this zoom, not just the first hit: in a group photo
-    // the first window isn't necessarily the nearest person, and finding
-    // them all keeps the "more than one face" warning working
+  // every window at a zoom level, not just the first hit: in a group photo
+  // the first window isn't necessarily the nearest person, and finding them
+  // all keeps the "more than one face" warning working
+  const searchLevel = (zoom) => {
     const found = [];
     for (const win of zoomWindows(width, height, zoom)) {
       canvas.width = win.w;
@@ -168,7 +172,13 @@ function detectFaces(faceLandmarker, image) {
       ctx.drawImage(image, win.x0, win.y0, win.w, win.h, 0, 0, win.w, win.h);
       found.push(...toFaces(faceLandmarker.detect(canvas), win));
     }
-    if (found.length) return distinctFaces(found);
+    return found;
+  };
+  for (const [i, zoom] of ZOOM_STEPS.entries()) {
+    const found = searchLevel(zoom);
+    if (!found.length) continue;
+    const closer = ZOOM_STEPS[i + 1];
+    return distinctFaces(closer ? [...found, ...searchLevel(closer)] : found);
   }
   return [];
 }
