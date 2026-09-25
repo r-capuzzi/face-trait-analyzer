@@ -5,6 +5,11 @@ import AxeBuilder from "@axe-core/playwright";
 import { test, expect } from "./fixtures.js";
 
 async function violations(page) {
+  // the cards fade in (opacity 0 to 1); contrast must be judged on the
+  // settled page, not mid-animation, or it fails at random on a slow load
+  await page.waitForFunction(() =>
+    document.getAnimations().every((a) => a.effect?.getComputedTiming().iterations === Infinity || a.playState !== "running")
+  );
   const { violations: found } = await new AxeBuilder({ page })
     .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
     .analyze();
