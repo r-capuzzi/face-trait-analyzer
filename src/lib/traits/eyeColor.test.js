@@ -2,6 +2,8 @@ import { deltaE2000, rgbToLab } from "../color";
 import {
   classifyEyeColor,
   classifyIrisPixel,
+  greenShare,
+  isGreenPixel,
   measureEyeColor,
   MIN_PUPIL_SEARCH_RADIUS,
   pieScore,
@@ -136,4 +138,29 @@ test("a small iris keeps the default pupil cutoff instead of searching sub-pixel
   const { imageData, points } = syntheticFace({ right: BLUE, left: BLUE }, { pupilR: 24 });
   const small = { cx: 100, cy: 100, r: MIN_PUPIL_SEARCH_RADIUS - 1 };
   expect(pupilEdge(imageData, small, eyeOpening(points, "right"))).toBe(RING.inner);
+});
+
+test("green pixels are yellowish but outside the warm band; blue-gray ones aren't", () => {
+  expect(isGreenPixel({ L: 50, a: -15, b: 15 })).toBe(true); // green, hue 135
+  expect(isGreenPixel({ L: 50, a: -4, b: 16 })).toBe(true); // olive, hue 104
+  expect(isGreenPixel(rgbToLab(...BLUE))).toBe(false); // b* < 0
+  expect(isGreenPixel({ L: 60, a: 0, b: 2 })).toBe(false); // gray: below the chroma floor
+  expect(isGreenPixel({ L: 50, a: 3, b: 25 })).toBe(false); // amber: warm band, pigment
+  expect(greenShare([{ L: 50, a: -15, b: 15 }, rgbToLab(...BLUE), { L: 30, a: 8, b: 14 }])).toBe(0.5);
+});
+
+test("a green iris reads green/hazel, not blue", () => {
+  const green = [95, 125, 80];
+  const { imageData, points } = syntheticFace({ right: green, left: green });
+  const m = measureEyeColor(imageData, points);
+  expect(m.pie).toBe(1); // every pixel is on the unpigmented side...
+  expect(m.greenShare).toBe(1); // ...and every one of them is green
+  expect(classifyEyeColor(m)).toMatchObject({ category: "intermediate", runnerUp: "blue" });
+});
+
+test("a blue iris stays blue: no green in it", () => {
+  const { imageData, points } = syntheticFace({ right: BLUE, left: BLUE });
+  const m = measureEyeColor(imageData, points);
+  expect(m.greenShare).toBe(0);
+  expect(classifyEyeColor(m).category).toBe("blue");
 });

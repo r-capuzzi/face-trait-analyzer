@@ -18,7 +18,7 @@ function blueResult() {
 test("summarizes each section with labels and rounded numbers", () => {
   const text = summarizeResult(blueResult(), { date: new Date("2026-09-24T12:00:00Z") });
   expect(text).toMatch(/^Trait Genetics Explainer results \(2026-09-24\)/);
-  expect(text).toMatch(/Eye color: Blue \/ gray \((high|medium|low) confidence; pixel index 1\.00\)/);
+  expect(text).toMatch(/Eye color: Blue \/ gray \((high|medium|low) confidence; pixel index 1\.00, green share 0%\)/);
   // unmeasurable traits say why instead of printing a number
   expect(text).toMatch(/Hair color: Not measured \(Not enough hair is visible/);
   expect(text).toContain("FACE SHAPE");

@@ -1,6 +1,6 @@
 // The eye's PIE score (Andersen 2013) on a -1..+1 bar: how much of the
 // iris is pigmented vs. unpigmented.
-export default function PigmentBar({ pie, eyes, heterochromiaNote }) {
+export default function PigmentBar({ pie, greenShare = 0, eyes, heterochromiaNote }) {
   const pct = (v) => `${((1 - v) / 2) * 100}%`; // +1 (blue) on the left
   return (
     <div className="pigment">
@@ -20,6 +20,8 @@ export default function PigmentBar({ pie, eyes, heterochromiaNote }) {
       <p className="pigment__caption">
         Pixel index {pie.toFixed(2)}: {Math.round(((1 + pie) / 2) * 100)}% of the sampled iris
         pixels read as unpigmented.
+        {greenShare >= 0.25 &&
+          ` ${Math.round(greenShare * 100)}% of those are green-tinted: green irises scatter light through a thin yellowish pigment layer, so they sit on the unpigmented side of this bar.`}
       </p>
       {heterochromiaNote && <p className="callout callout--warn">{heterochromiaNote}</p>}
     </div>

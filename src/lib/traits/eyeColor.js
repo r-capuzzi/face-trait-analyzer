@@ -95,6 +95,30 @@ export function classifyIrisPixel(lab) {
   return h >= PIXEL_RULE.warmHue[0] && h <= PIXEL_RULE.warmHue[1] ? "brown" : "blue";
 }
 
+// Green isn't a pigment of its own: a green iris is blue scattering seen
+// through a thin yellowish (pheomelanin) layer, so its "unpigmented"
+// pixels still carry some yellow - b* > 0, hue between the warm band and
+// 180°. A blue or gray iris has none. Both land on the blue side of the
+// two-way split above (the pixel index keeps Andersen's definition), so
+// without this a green eye read "Blue / gray".
+export function isGreenPixel(lab) {
+  if (chroma(lab) < PIXEL_RULE.minChroma || lab.b <= 0) return false;
+  const h = hueAngle(lab);
+  return h > PIXEL_RULE.warmHue[1] && h < 180;
+}
+
+// Share of the blue-side pixels that are green, 0 to 1.
+export function greenShare(labs) {
+  let blueSide = 0;
+  let green = 0;
+  for (const lab of labs) {
+    if (classifyIrisPixel(lab) !== "blue") continue;
+    blueSide++;
+    if (isGreenPixel(lab)) green++;
+  }
+  return blueSide ? green / blueSide : 0;
+}
+
 export function pieScore(labs) {
   let blue = 0;
   let brown = 0;
@@ -185,6 +209,7 @@ export function measureEyeColor(imageData, points) {
   return {
     status: "ok",
     pie: pieScore(all),
+    greenShare: greenShare(all),
     lab: medianLab(all),
     eyes,
     pixelCount: all.length,
@@ -211,10 +236,20 @@ export const EYE_BANDS = [
   { key: "blue" },
 ];
 
+// A mostly unpigmented iris whose blue-side pixels are mostly green is a
+// green eye, which IrisPlex files under "intermediate" (green/hazel), not
+// blue. "Mostly" (a majority) is a starting value; CALIBRATE on labeled
+// green eyes, which the test photos don't include.
+export const GREEN_RULE = { share: 0.5 };
+
 // Returns { category, margin, runnerUp }: margin in [0, 1] is 0 on a
 // boundary and 1 at the far end of the scale (or the middle of the
 // intermediate band); runnerUp is the category across the nearer boundary.
-export function classifyEyeColor({ pie }) {
+export function classifyEyeColor({ pie, greenShare = 0 }) {
   // end bands run 0.6 from their boundary to the scale's end (±1)
-  return classifyBands(pie, EYE_BANDS, { span: 0.6 });
+  const byPie = classifyBands(pie, EYE_BANDS, { span: 0.6 });
+  if (byPie.category !== "blue" || greenShare < GREEN_RULE.share) return byPie;
+  // blue vs. green now hinges on the green share: 0 at the rule, 1 at 80%
+  const margin = Math.min(1, (greenShare - GREEN_RULE.share) / 0.3);
+  return { category: "intermediate", margin, runnerUp: "blue" };
 }

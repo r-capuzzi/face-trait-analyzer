@@ -17,7 +17,7 @@ const r = (v, digits = 0) => (Number.isFinite(v) ? v.toFixed(digits) : "?");
 
 // The few numbers behind each color result that matter for checking it.
 const COLOR_DETAIL = {
-  eye: (t) => `pixel index ${r(t.pie, 2)}`,
+  eye: (t) => `pixel index ${r(t.pie, 2)}, green share ${r((t.greenShare ?? 0) * 100)}%`,
   hair: (t) => `lightness L* ${r(t.lab?.L)}, chroma ${r(t.chroma, 1)}`,
   skin: (t) => `ITA ${r(t.ita)}°, closest Monk swatch ${t.monk?.tone ?? "?"}`,
 };

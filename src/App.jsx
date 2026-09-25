@@ -40,6 +40,7 @@ const TRAITS = [
     details: (t) => (
       <PigmentBar
         pie={t.pie}
+        greenShare={t.greenShare}
         eyes={t.eyes}
         heterochromiaNote={t.heterochromia ? eyeColor.heterochromia : null}
       />
