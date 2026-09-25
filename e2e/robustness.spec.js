@@ -189,3 +189,9 @@ for (const photo of ["business", "portrait"]) {
     expect(Math.abs(far.hair.numbers.L - base.hair.numbers.L), "hair lightness").toBeLessThanOrEqual(4);
   });
 }
+
+test("two people small in the frame: both are found, so the app still warns", async ({ app }) => {
+  await app.analyze(await app.variant("twoPeople", SMALL_IN_FRAME, { name: "group.jpg", type: "image/jpeg", quality: 0.9 }));
+  await expect(app.page.locator("#results-heading")).toBeAttached();
+  expect((await app.summary()).checks.join("\n")).toMatch(/More than one face/);
+});

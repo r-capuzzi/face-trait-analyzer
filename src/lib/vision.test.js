@@ -1,4 +1,4 @@
-import { headCropBox, zoomWindows } from "./vision";
+import { distinctFaces, headCropBox, zoomWindows } from "./vision";
 
 test("zoomed windows overlap by half and cover the whole photo", () => {
   for (const zoom of [2, 3]) {
@@ -27,4 +27,15 @@ test("the head crop covers the hair sampling area, and is skipped when the face 
   selfie[468] = { x: 170, y: 200 };
   selfie[473] = { x: 230, y: 200 };
   expect(headCropBox(selfie, 400, 520)).toBeNull(); // the crop would be most of the photo
+});
+
+test("the same face found in two overlapping windows counts once", () => {
+  const face = (x) => {
+    const points = [];
+    points[468] = { x, y: 100 };
+    points[473] = { x: x + 40, y: 100 };
+    return { points };
+  };
+  // two near-identical detections of one face, and a second person
+  expect(distinctFaces([face(100), face(103), face(400)])).toHaveLength(2);
 });

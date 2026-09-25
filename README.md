@@ -153,6 +153,8 @@ Each test photo was also run as the kinds of copies phones and apps produce: mir
 
 The face-shape measurements held up in the same test: proportions, nose width, lip fullness, brow arch and hairline moved 1–5% across copies. The exceptions are the lower-to-upper lip ratio and the Cupid's bow, which run about 10% higher on mirrored copies because MediaPipe's face mesh isn't perfectly mirror-symmetric around the lips. An end-to-end test now holds each ratio to those limits.
 
+**Photos taken from farther away** (the tips suggest 1.5 m for face shape) turned up two more problems. MediaPipe's face detector found no face at all once the pupils were closer than about 6–7% of the image width, which is a phone photo from 1.5 m without zooming. Detection now retries in overlapping zoomed windows (halves, then thirds of the photo), finds faces down to 2.6% on the test photos, and still finds both people in a distant two-person photo. The segmentation model also shrinks the whole photo to 256×256, so a small face got a coarse mask: on a small copy of the portrait, the gray background counted as hair (L* 56 instead of 46). It now runs a second time on a crop around the face, which brought that back to L* 45.
+
 Glasses are now noticed too. The segmentation model labels eyewear as "accessories"; when that label covers 5% of the band around the eyes, eye-color confidence drops a level and the photo check says why (lenses tint and reflect over the iris). Frames drawn on a test photo covered 18%, and none of the photos without glasses had any.
 
 Exposure still moves skin tone: a photo one stop darker reads about one to two ITA categories darker. Only a color reference card in the photo could remove that, which is why skin confidence stays capped at medium.

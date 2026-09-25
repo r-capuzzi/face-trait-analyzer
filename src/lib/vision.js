@@ -158,15 +158,32 @@ function detectFaces(faceLandmarker, image) {
   const canvas = document.createElement("canvas");
   const ctx = canvas.getContext("2d");
   for (const zoom of ZOOM_STEPS) {
+    // every window at this zoom, not just the first hit: in a group photo
+    // the first window isn't necessarily the nearest person, and finding
+    // them all keeps the "more than one face" warning working
+    const found = [];
     for (const win of zoomWindows(width, height, zoom)) {
       canvas.width = win.w;
       canvas.height = win.h;
       ctx.drawImage(image, win.x0, win.y0, win.w, win.h, 0, 0, win.w, win.h);
-      const found = toFaces(faceLandmarker.detect(canvas), win);
-      if (found.length) return found;
+      found.push(...toFaces(faceLandmarker.detect(canvas), win));
     }
+    if (found.length) return distinctFaces(found);
   }
   return [];
+}
+
+// Overlapping windows find the same face more than once; keep one per face
+// (pupil midpoints closer than one pupil spacing are the same face).
+export function distinctFaces(faces) {
+  const mid = (f) => ({ x: (f.points[468].x + f.points[473].x) / 2, y: (f.points[468].y + f.points[473].y) / 2 });
+  const iod = (f) => Math.hypot(f.points[473].x - f.points[468].x, f.points[473].y - f.points[468].y);
+  const kept = [];
+  for (const f of faces) {
+    const m = mid(f);
+    if (!kept.some((k) => Math.hypot(mid(k).x - m.x, mid(k).y - m.y) < iod(k))) kept.push(f);
+  }
+  return kept;
 }
 
 // image: canvas/ImageData/ImageBitmap. Returns plain JS objects only - no
