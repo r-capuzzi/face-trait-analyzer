@@ -75,6 +75,9 @@ export class App {
   // The "Copy results summary" text: every category, confidence and key
   // number, exactly as a visitor would paste it.
   async summary() {
+    // the clipboard only works for the focused tab, and variant() works in a
+    // second one
+    await this.page.bringToFront();
     await this.page.getByRole("button", { name: "Copy results summary" }).click();
     const status = this.page.locator(".copy-summary__status");
     const manual = this.page.locator(".copy-summary__manual textarea");
