@@ -62,3 +62,15 @@ test("a face too small to measure is reported per trait, not as a crash", async 
   }
   expect(app.log.pageErrors).toEqual([]);
 });
+
+test("if the models can't download, it says so and a retry works without reloading", async ({ app }) => {
+  // a dropped connection to Google's model bucket
+  await app.page.route("https://storage.googleapis.com/**", (route) => route.abort("internetdisconnected"));
+  await app.analyze("business");
+  expect(await app.errorText()).toMatch(/Check your connection/);
+  // connection back: the same page, no reload
+  await app.page.unroute("https://storage.googleapis.com/**");
+  await app.analyze("business");
+  await expect(app.page.locator("#results-heading")).toBeAttached();
+  expect((await app.summary()).eye.measured).toBe(true);
+});
