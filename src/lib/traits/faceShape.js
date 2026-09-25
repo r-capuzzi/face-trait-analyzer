@@ -42,6 +42,19 @@ export const EXPRESSION = {
 };
 export const MAX_TURN_DEG = 20; // widths foreshorten and the nose shifts sideways
 
+// Up close, perspective widens the nose relative to the rest of the face
+// (Ward et al. 2018 compared 30 cm with 1.5 m). MediaPipe's pose matrix
+// carries the face's distance from the camera in cm (its translation z,
+// column-major index 14), estimated from how much of the frame the face
+// fills under a typical camera's field of view - so a cropped photo reads
+// closer than it was, which the note says. Uncropped test photos read
+// 63-68 cm; arm's-length selfies are about 30-50 cm.
+export const CLOSE_UP_CM = 45;
+
+export function cameraDistanceCm(matrix) {
+  return matrix && matrix.length >= 16 && Number.isFinite(matrix[14]) ? Math.abs(matrix[14]) : null;
+}
+
 const avg = (a, b) => ((a ?? 0) + (b ?? 0)) / 2;
 // A ratio whose denominator collapsed (degenerate landmarks) is "not measured", never NaN/Infinity.
 const ratio = (a, b) => (b > 1e-6 && Number.isFinite(a) ? a / b : null);
@@ -118,6 +131,8 @@ export function measureFaceShape(face) {
     avg(bs.eyeSquintLeft, bs.eyeSquintRight) > EXPRESSION.squint ||
     avg(bs.eyeBlinkLeft, bs.eyeBlinkRight) > EXPRESSION.blink;
   const turnNote = "Your head is turned, which foreshortens widths and shifts the nose sideways.";
+  const distance = cameraDistanceCm(matrix);
+  const closeUp = distance !== null && distance < CLOSE_UP_CM;
 
   return {
     status: "ok",
@@ -136,6 +151,8 @@ export function measureFaceShape(face) {
       notes: [
         // the nose base widened on smiling in 92% of 50 people (Beiraghi-Toosi 2016)
         smiling && "You're smiling, and smiling flares the nose wings, so your nose measures wider than at rest.",
+        closeUp &&
+          `This looks like a close-up (about ${Math.round(distance)} cm from the camera, judging by how much of the frame your face fills; a cropped photo can look closer than it was). Up close, perspective makes the nose look wider, so it measures wider than it is.`,
         turned && turnNote,
       ].filter(Boolean),
     },

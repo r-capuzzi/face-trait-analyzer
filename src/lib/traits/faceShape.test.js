@@ -1,5 +1,5 @@
 import { designedFace } from "../../test/designedFace";
-import { fromFrame, measureFaceShape } from "./faceShape";
+import { fromFrame, measureFaceShape, cameraDistanceCm } from "./faceShape";
 
 const neutral = { blendshapes: {}, matrix: null };
 
@@ -110,4 +110,14 @@ test("collapsed landmarks give null ('not measured'), never NaN", () => {
   const s = measureFaceShape({ points: pts, blendshapes: {}, matrix: null });
   expect(s.nose.toEyeGap).toBe(0);
   expect(s.lips.mouthToNose).toBeNull();
+});
+
+test("a close-up photo (under 45 cm) gets a perspective note on nose width", () => {
+  // column-major 4x4: identity rotation, translation z at index 14 (cm)
+  const at = (cm) => [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, -cm, 1];
+  expect(cameraDistanceCm(at(30))).toBe(30);
+  const near = measureFaceShape({ points: designedFace(), blendshapes: {}, matrix: at(30) });
+  expect(near.nose.notes.join(" ")).toContain("close-up (about 30 cm");
+  const far = measureFaceShape({ points: designedFace(), blendshapes: {}, matrix: at(68) });
+  expect(far.nose.notes).toEqual([]);
 });
