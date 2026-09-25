@@ -28,7 +28,7 @@ export const PHOTOS = {
   // 256 px face: gray-green hazel eyes with a brown center, chestnut-brown
   // hair (it measures right at the black/brown lightness boundary). The app
   // may hedge on either, but a hedge must include the right answer: "Black
-  // or Brown" passes, a confident "Black" fails.
+  // / dark brown or Brown" passes, a confident "Black / dark brown" fails.
   stylizer: {
     file: "face_stylizer_raw_face_demo.png",
     expect: { eye: ["brown", "intermediate"], hair: ["brown", "black"], skin: "measured", mustInclude: { hair: "brown" } },

@@ -56,10 +56,14 @@ const hairColor = {
 
   categories: {
     black: {
-      label: "Black",
-      summary: "Lots of eumelanin.",
+      // In photos, black and very dark brown hair measure the same: on the
+      // test photos two people's very dark brown hair read L* 10-20 and a
+      // black-haired person's L* 13. The label says so instead of calling
+      // the far more common dark brown "black".
+      label: "Black / dark brown",
+      summary: "Lots of eumelanin. In a photo, black and very dark brown hair look almost the same.",
       hint: {
-        text: "Black hair is polygenic: no single variant explains it, so a genotype can't be read from it. It is the hair color DNA tests predict best (87.5% accuracy in the HIrisPlex study, compared with 69.5% for blond).",
+        text: "Black and very dark brown hair are polygenic: no single variant explains them, so a genotype can't be read from them. Black is the hair color DNA tests predict best (87.5% accuracy in the HIrisPlex study, compared with 69.5% for blond).",
         cite: ["walsh2013", "morgan2018"],
       },
     },

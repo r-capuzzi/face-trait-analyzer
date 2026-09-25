@@ -148,7 +148,7 @@ export class App {
 const TRAIT_OF = { "Eye color": "eye", "Hair color": "hair", "Skin tone": "skin" };
 const KEY_OF = {
   eye: { "Blue / gray": "blue", "Green / hazel": "intermediate", Brown: "brown" },
-  hair: { Black: "black", Brown: "brown", Blond: "blond", "Red / auburn": "red", "Gray / white": "gray" },
+  hair: { "Black / dark brown": "black", Brown: "brown", Blond: "blond", "Red / auburn": "red", "Gray / white": "gray" },
 };
 
 // Summary text -> { eye, hair, skin, checks, text }. A measured color trait
