@@ -11,7 +11,7 @@
 import { classifyBands } from "../bands";
 import { chroma, hueAngle } from "../color";
 import { isClipped, maskAt, samplePixels } from "../pixels";
-import { faceFrame } from "../regions";
+import { FACE_OVAL, faceFrame, JAW_ANGLES, MOUTH_CORNERS, pointInPolygon, toFrame } from "../regions";
 import { medianLab, trimByPercentile } from "../stats";
 import { MASK } from "../maskCategories";
 
@@ -71,9 +71,27 @@ function isInteriorHair(mask, x, y, d, w, h) {
   );
 }
 
+// Scalp hair only. The segmentation model labels a beard or stubble as hair
+// too, and a beard can be a different color from the head (it often grays
+// or reddens differently): in a unit test, a gray beard under brown hair
+// made up a third of the sample. So hair inside the face outline (facial
+// hair, or bangs over the forehead) and in the beard zone - below the
+// mouth, within the jaw's width - is left out.
+function scalpOnly(points, f) {
+  const oval = FACE_OVAL.map((i) => points[i]);
+  const mouthV = (toFrame(f, points[MOUTH_CORNERS.right]).v + toFrame(f, points[MOUTH_CORNERS.left]).v) / 2;
+  const jawHalf = 1.1 * Math.max(...Object.values(JAW_ANGLES).map((i) => Math.abs(toFrame(f, points[i]).u)));
+  return (x, y) => {
+    if (pointInPolygon(x, y, oval)) return false;
+    const { u, v } = toFrame(f, { x, y });
+    return !(v > mouthV && Math.abs(u) < jawHalf);
+  };
+}
+
 export function sampleHair(imageData, mask, points) {
   const { width: w, height: h } = imageData;
   const f = faceFrame(points);
+  const scalp = scalpOnly(points, f);
   // Only this person's hair: a generous box around the face (long hair
   // reaches the shoulders), ignoring anyone else's hair in the photo.
   const reach = 3 * f.iod;
@@ -81,7 +99,7 @@ export function sampleHair(imageData, mask, points) {
   const area = (box.x1 - box.x0) * (box.y1 - box.y0);
   const stride = Math.max(1, Math.round(Math.sqrt(area / TARGET_SAMPLES)));
   const d = Math.max(2, Math.round(0.04 * f.iod));
-  const raw = samplePixels(imageData, box, (x, y) => isInteriorHair(mask, x, y, d, w, h), stride).filter(
+  const raw = samplePixels(imageData, box, (x, y) => isInteriorHair(mask, x, y, d, w, h) && scalp(x, y), stride).filter(
     (p) => !isClipped(p)
   );
   // Trim shine (brightest 10%) and deep shadow between strands (darkest 10%).

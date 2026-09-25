@@ -71,3 +71,12 @@ test("the red rule doesn't move with exposure: a brighter photo of brown hair st
   expect(classifyHairColor(asShot).category).not.toBe("red");
   expect(classifyHairColor(brighter).category).not.toBe("red");
 });
+
+test("a beard (which the model labels hair too) doesn't color the head's hair", () => {
+  // brown hair on the head, a gray beard over the chin and below the jaw
+  const m = hairOf([90, 65, 45], { beard: [160, 160, 158] });
+  expect(m.status).toBe("ok");
+  expect(deltaE2000(m.lab, rgbToLab(90, 65, 45))).toBeLessThan(1);
+  expect(m.grayFraction).toBe(0);
+  expect(classifyHairColor(m).category).toBe("brown");
+});
