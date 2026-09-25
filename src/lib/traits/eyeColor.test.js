@@ -8,10 +8,11 @@ import {
   MIN_PUPIL_SEARCH_RADIUS,
   pieScore,
   pupilEdge,
+  refineIrisCircle,
   RING,
   rejectOutliers,
 } from "./eyeColor";
-import { eyeOpening } from "../regions";
+import { eyeOpening, IRIS, irisCircle } from "../regions";
 import { BLUE, BROWN, syntheticFace } from "../../test/syntheticFace";
 
 test("classifyIrisPixel: warm hues and dark neutrals are pigment, the rest scatter blue", () => {
@@ -163,4 +164,42 @@ test("a blue iris stays blue: no green in it", () => {
   const m = measureEyeColor(imageData, points);
   expect(m.greenShare).toBe(0);
   expect(classifyEyeColor(m).category).toBe("blue");
+});
+
+describe("refineIrisCircle", () => {
+  // the painted iris: center (100, 100), radius 40 (see syntheticFace)
+  const shifted = (dx, scale) => {
+    const face = syntheticFace({ right: BROWN, left: BROWN });
+    const c = face.points[IRIS.right.center];
+    for (const i of [IRIS.right.center, ...IRIS.right.edge]) {
+      const p = face.points[i];
+      face.points[i] = { x: c.x + dx + (p.x - c.x) * scale, y: c.y + (p.y - c.y) * scale };
+    }
+    return face;
+  };
+
+  // The search moves in steps of r/16 (2.5 px here), and against a painted,
+  // perfectly sharp edge every circle within a step fits equally well, so
+  // "on the edge" means within about one step.
+  test("pulls landmarks that landed off the iris back onto its edge", () => {
+    const { imageData, points } = shifted(7, 1.1); // 7 px off-center, 10% too big
+    const landmark = irisCircle(points, "right");
+    const refined = refineIrisCircle(imageData, landmark, eyeOpening(points, "right"));
+    expect(Math.hypot(refined.cx - 100, refined.cy - 100)).toBeLessThan(3.5);
+    expect(Math.abs(refined.r - 40)).toBeLessThan(3);
+  });
+
+  test("leaves well-placed landmarks where they are", () => {
+    const { imageData, points } = shifted(0, 1);
+    const refined = refineIrisCircle(imageData, irisCircle(points, "right"), eyeOpening(points, "right"));
+    expect(Math.hypot(refined.cx - 100, refined.cy - 100)).toBeLessThan(3);
+    expect(Math.abs(refined.r - 40)).toBeLessThan(3);
+  });
+
+  test("keeps the landmark circle when there's no edge to find", () => {
+    const { points } = shifted(7, 1.1);
+    const flat = { width: 400, height: 200, data: new Uint8ClampedArray(400 * 200 * 4).fill(128) };
+    const landmark = irisCircle(points, "right");
+    expect(refineIrisCircle(flat, landmark, eyeOpening(points, "right"))).toEqual(landmark);
+  });
 });

@@ -65,6 +65,94 @@ export function pupilEdge(imageData, circle, lids) {
   return Math.min(RING.maxInner, Math.max(RING.inner, (edgeBin + 1) * 0.05));
 }
 
+// MediaPipe's iris landmarks can land a pixel or two off, and on a small
+// iris that's a big share of the radius: mirroring a real portrait moved
+// the ring enough that the same eye's median went from L* 8 to L* 22. So
+// the circle is refined to the limbus - the iris's outer edge against the
+// white of the eye - by trying nearby centers and radii and keeping the
+// one with the strongest dark-inside, bright-outside step. That is
+// Daugman's (1993) integro-differential idea, used here only on the sides
+// of the iris (within 30° of horizontal), since the lids usually cover its
+// top and bottom and their lash line is an edge too. Without a clear edge
+// (a closed or dim eye) the landmark circle is kept, and so it is below an
+// 8 px radius: there the edge is a pixel or two of blur and the search
+// locked onto the lashes of a real 6 px iris, while at 8 px it held the
+// mirrored and original portrait within L* 2 of each other.
+export const LIMBUS = {
+  shift: 0.25, // search centers within 25% of the radius
+  radius: [0.8, 1.15], // and radii within this range of the landmark radius
+  minContrast: 6, // mean gray-level step (0-255) that counts as a real edge
+  minAngles: 8, // sample directions that must fall between the lids
+  minRadius: 8, // px
+};
+const LIMBUS_ANGLES = [-30, -20, -10, 0, 10, 20, 30].flatMap((a) => [a, a + 180]).map(
+  (a) => [Math.cos((a * Math.PI) / 180), Math.sin((a * Math.PI) / 180)]
+);
+
+function grayAt({ width, height, data }, x, y) {
+  const x0 = Math.max(0, Math.min(width - 2, Math.floor(x - 0.5)));
+  const y0 = Math.max(0, Math.min(height - 2, Math.floor(y - 0.5)));
+  const fx = Math.max(0, Math.min(1, x - 0.5 - x0));
+  const fy = Math.max(0, Math.min(1, y - 0.5 - y0));
+  const g = (xx, yy) => {
+    const i = (yy * width + xx) * 4;
+    return 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+  };
+  return (
+    g(x0, y0) * (1 - fx) * (1 - fy) + g(x0 + 1, y0) * fx * (1 - fy) + g(x0, y0 + 1) * (1 - fx) * fy + g(x0 + 1, y0 + 1) * fx * fy
+  );
+}
+
+// The interquartile mean of the steps across directions: a catchlight just
+// outside a candidate circle, against the dark pupil just inside it, makes a
+// bigger step than the real edge in one or two directions, and a plain mean
+// let those drag the circle onto the glare (a unit test caught it). A median
+// resists that but ties a circle that is only half on the edge with the true
+// one; averaging the middle half does neither.
+// Samples sit just inside and outside the circle (6% of the radius, at
+// least a pixel), so a circle only fits where the edge really is, and a
+// direction whose samples fall outside the lids scores zero - no evidence -
+// rather than being skipped, which would let a circle score well by moving
+// its wrong side under the lids.
+export function limbusContrast(imageData, { cx, cy, r }, lids) {
+  const d = Math.max(1, 0.06 * r);
+  const steps = [];
+  let visible = 0;
+  for (const [c, s] of LIMBUS_ANGLES) {
+    const out = [cx + (r + d) * c, cy + (r + d) * s];
+    const inn = [cx + (r - d) * c, cy + (r - d) * s];
+    if (!pointInPolygon(...out, lids) || !pointInPolygon(...inn, lids)) {
+      steps.push(0);
+      continue;
+    }
+    steps.push(grayAt(imageData, ...out) - grayAt(imageData, ...inn));
+    visible++;
+  }
+  if (visible < LIMBUS.minAngles) return -Infinity;
+  steps.sort((a, b) => a - b);
+  const mid = steps.slice(Math.floor(steps.length / 4), Math.ceil((3 * steps.length) / 4));
+  return mid.reduce((s, v) => s + v, 0) / mid.length;
+}
+
+export function refineIrisCircle(imageData, circle, lids) {
+  if (circle.r < LIMBUS.minRadius) return circle;
+  const step = Math.max(0.5, circle.r / 16);
+  const rStep = Math.max(0.5, circle.r / 20);
+  const reach = LIMBUS.shift * circle.r;
+  let best = { ...circle, contrast: limbusContrast(imageData, circle, lids) };
+  for (let dy = -reach; dy <= reach + 1e-9; dy += step) {
+    for (let dx = -reach; dx <= reach + 1e-9; dx += step) {
+      for (let r = LIMBUS.radius[0] * circle.r; r <= LIMBUS.radius[1] * circle.r + 1e-9; r += rStep) {
+        const c = { cx: circle.cx + dx, cy: circle.cy + dy, r };
+        const contrast = limbusContrast(imageData, c, lids);
+        if (contrast > best.contrast) best = { ...c, contrast };
+      }
+    }
+  }
+  if (!(best.contrast >= LIMBUS.minContrast)) return circle;
+  return { cx: best.cx, cy: best.cy, r: best.r };
+}
+
 // Below this many usable pixels an eye is too small to measure (a 2048 px
 // selfie at arm's length gives a few hundred).
 export const MIN_EYE_PIXELS = 30;
@@ -169,8 +257,8 @@ export function preferLowerHalf(pixels, circle, down) {
 // when possible, and not a lightness outlier (catchlights, sclera, lashes,
 // pupil; see rejectOutliers).
 export function sampleIris(imageData, points, side) {
-  const circle = irisCircle(points, side);
   const lids = eyeOpening(points, side);
+  const circle = refineIrisCircle(imageData, irisCircle(points, side), lids);
   const inner = pupilEdge(imageData, circle, lids);
   let ringCount = 0;
   let visibleCount = 0;
